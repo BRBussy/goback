@@ -3,7 +3,7 @@ package claims
 import (
 	"context"
 	"encoding/json"
-	scraperamaException "scraperama/internal/pkg/exception"
+	"errors"
 )
 
 func ParseClaimsFromContext(ctx context.Context) (Claims, error) {
@@ -16,7 +16,7 @@ func ParseClaimsFromContext(ctx context.Context) (Claims, error) {
 	// try an cast claims to string
 	marshalledClaims, ok := marshalledClaimsInterface.([]byte)
 	if !ok {
-		return nil, scraperamaException.ErrUnexpected{Reasons: []string{"could not cast marshalled claims to []byte"}}
+		return nil, errors.New("unexpected error")
 	}
 
 	var serializedClaims Serialized

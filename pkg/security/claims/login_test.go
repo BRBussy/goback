@@ -56,13 +56,13 @@ func TestLogin_Expired(t *testing.T) {
 	)
 }
 
-func TestLogin_ExpiryTime(t *testing.T) {
-	assert := testifyAssert.New(t)
-	typedClaims, ok := loginClaimsTestPair.Claims.(Login)
-	assert.True(ok)
-
-	assert.Equal(
-		typedClaims.ExpirationTime,
-		typedClaims.ExpiryTime(),
-	)
-}
+//func TestLogin_ExpiryTime(t *testing.T) {
+//	assert := testifyAssert.New(t)
+//	typedClaims, ok := loginClaimsTestPair.Claims.(Login)
+//	assert.True(ok)
+//
+//	assert.Equal(
+//		typedClaims.ExpirationTime,
+//		typedClaims.ExpiryTime(),
+//	)
+//}
