@@ -3,7 +3,6 @@ package user
 import (
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/mongo/filter"
-	"os/user"
 )
 
 type Store interface {
@@ -23,7 +22,7 @@ const DeleteService = ServiceProvider + ".Delete"
 const ListService = ServiceProvider + ".List"
 
 type CreateRequest struct {
-	User user.User `validate:"required"`
+	User User `validate:"required"`
 }
 
 type CreateResponse struct {
@@ -34,11 +33,11 @@ type RetrieveRequest struct {
 }
 
 type RetrieveResponse struct {
-	User user.User
+	User User
 }
 
 type UpdateRequest struct {
-	User user.User `validate:"required"`
+	User User `validate:"required"`
 }
 
 type UpdateResponse struct {
@@ -49,7 +48,7 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	User user.User
+	User User
 }
 
 type ListRequest struct {
@@ -58,6 +57,6 @@ type ListRequest struct {
 }
 
 type ListResponse struct {
-	Records []user.User
+	Records []User
 	Total   int64
 }
