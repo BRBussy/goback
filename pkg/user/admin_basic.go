@@ -1,7 +1,9 @@
 package user
 
 import (
+	"github.com/BRBussy/goback/pkg/exception"
 	"github.com/BRBussy/goback/pkg/validate"
+	"github.com/gofrs/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -24,6 +26,12 @@ func (b BasicAdmin) Get(request GetRequest) (*GetResponse, error) {
 	if err := b.validator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
+	}
+
+	id, err := uuid.NewV4()
+	if err != nil {
+		log.Error().Err(err).Msg("error creating uuid")
+		return nil, exception.NewErrUnexpected(err)
 	}
 
 	return &GetResponse{}, nil
