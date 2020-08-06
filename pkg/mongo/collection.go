@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"github.com/BRBussy/goback/pkg/mongo/filter"
 	mongoBSON "go.mongodb.org/mongo-driver/bson"
 	mongoDriver "go.mongodb.org/mongo-driver/mongo"
 	"time"
@@ -51,9 +52,9 @@ func (c *Collection) CreateMany(documents []interface{}) error {
 	return err
 }
 
-func (c *Collection) DeleteOne(filter Filter) error {
+func (c *Collection) DeleteOne(filter filter.Filter) error {
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	if _, err := c.driverCollection.DeleteOne(ctx, filter); err != nil {
+	if _, err := c.driverCollection.DeleteOne(ctx, filter.ToOrderedBSON()); err != nil {
 		switch err {
 		case mongoDriver.ErrNoDocuments:
 			return NewErrUnexpected(err)
@@ -64,9 +65,9 @@ func (c *Collection) DeleteOne(filter Filter) error {
 	return nil
 }
 
-func (c *Collection) FindOne(document interface{}, filter Filter) error {
+func (c *Collection) FindOne(document interface{}, filter filter.Filter) error {
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	if err := c.driverCollection.FindOne(ctx, filter).Decode(document); err != nil {
+	if err := c.driverCollection.FindOne(ctx, filter.ToOrderedBSON()).Decode(document); err != nil {
 		switch err {
 		case mongoDriver.ErrNoDocuments:
 			return NewErrNotFound()
@@ -77,7 +78,7 @@ func (c *Collection) FindOne(document interface{}, filter Filter) error {
 	return nil
 }
 
-func (c *Collection) FindMany(documents interface{}, filter Filter, query Query) (int64, error) {
+func (c *Collection) FindMany(documents interface{}, filter filter.Filter, query Query) (int64, error) {
 	// get options
 	findOptions, err := query.ToMongoFindOptions()
 	if err != nil {
@@ -86,7 +87,7 @@ func (c *Collection) FindMany(documents interface{}, filter Filter, query Query)
 
 	// perform find
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	cur, err := c.driverCollection.Find(ctx, filter, findOptions)
+	cur, err := c.driverCollection.Find(ctx, filter.ToOrderedBSON(), findOptions)
 	if err != nil {
 		return 0, NewErrUnexpected(err)
 	}
@@ -105,9 +106,9 @@ func (c *Collection) FindMany(documents interface{}, filter Filter, query Query)
 	return count, nil
 }
 
-func (c *Collection) UpdateOne(document interface{}, filter Filter) error {
+func (c *Collection) UpdateOne(document interface{}, filter filter.Filter) error {
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	if _, err := c.driverCollection.ReplaceOne(ctx, filter, document); err != nil {
+	if _, err := c.driverCollection.ReplaceOne(ctx, filter.ToOrderedBSON(), document); err != nil {
 		return NewErrUnexpected(err)
 	}
 	return nil
