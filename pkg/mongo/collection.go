@@ -51,9 +51,9 @@ func (c *Collection) CreateMany(documents []interface{}) error {
 	return err
 }
 
-func (c *Collection) DeleteOne(id string) error {
+func (c *Collection) DeleteOne(filter Filter) error {
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	if _, err := c.driverCollection.DeleteOne(ctx, map[string]interface{}{"id": id}); err != nil {
+	if _, err := c.driverCollection.DeleteOne(ctx, filter); err != nil {
 		switch err {
 		case mongoDriver.ErrNoDocuments:
 			return NewErrUnexpected(err)
@@ -64,9 +64,9 @@ func (c *Collection) DeleteOne(id string) error {
 	return nil
 }
 
-func (c *Collection) FindOne(document interface{}, id string) error {
+func (c *Collection) FindOne(document interface{}, filter Filter) error {
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	if err := c.driverCollection.FindOne(ctx, map[string]interface{}{"id": id}).Decode(document); err != nil {
+	if err := c.driverCollection.FindOne(ctx, filter).Decode(document); err != nil {
 		switch err {
 		case mongoDriver.ErrNoDocuments:
 			return NewErrNotFound()
@@ -77,7 +77,7 @@ func (c *Collection) FindOne(document interface{}, id string) error {
 	return nil
 }
 
-func (c *Collection) FindMany(documents interface{}, filter map[string]interface{}, query Query) (int64, error) {
+func (c *Collection) FindMany(documents interface{}, filter Filter, query Query) (int64, error) {
 	// get options
 	findOptions, err := query.ToMongoFindOptions()
 	if err != nil {
@@ -105,9 +105,9 @@ func (c *Collection) FindMany(documents interface{}, filter map[string]interface
 	return count, nil
 }
 
-func (c *Collection) UpdateOne(document interface{}, id string) error {
+func (c *Collection) UpdateOne(document interface{}, filter Filter) error {
 	ctx, _ := context.WithTimeout(context.Background(), c.timeout)
-	if _, err := c.driverCollection.ReplaceOne(ctx, map[string]interface{}{"id": id}, document); err != nil {
+	if _, err := c.driverCollection.ReplaceOne(ctx, filter, document); err != nil {
 		return NewErrUnexpected(err)
 	}
 	return nil
