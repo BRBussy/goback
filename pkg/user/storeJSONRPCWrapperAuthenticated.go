@@ -23,7 +23,7 @@ type CreateJSONRPCRequest struct {
 type CreateJSONRPCResponse struct {
 }
 
-func (a *AuthenticatedJSONRPCWrapper) CreateOne(r *http.Request, request *CreateJSONRPCRequest, response *CreateJSONRPCResponse) error {
+func (a *AuthenticatedJSONRPCWrapper) Create(r *http.Request, request *CreateJSONRPCRequest, response *CreateJSONRPCResponse) error {
 	_, err := a.store.Create(
 		CreateRequest(*request),
 	)

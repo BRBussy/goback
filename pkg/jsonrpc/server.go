@@ -37,7 +37,7 @@ func NewServer(
 
 	for _, rpcServerConfig := range rpcServerConfigs {
 		log.Info().Msg(fmt.Sprintf(
-			"Start %s RPC API Server on path %s",
+			"Create %s RPC API Server on path %s",
 			rpcServerConfig.Name,
 			rpcServerConfig.Path,
 		))
@@ -54,19 +54,9 @@ func NewServer(
 			}
 		}
 
-		// create api router
-		apiRouter := mux.NewRouter()
-
-		// register any supplied middleware
-		if rpcServerConfig.Middleware != nil {
-			apiRouter.Use(rpcServerConfig.Middleware...)
-		}
-
-		// put a handler function
-		apiRouter.HandleFunc("/", rpcServer.ServeHTTP)
-
-		// mount this individual RPC Server and the given path
-		newServer.router.Handle(rpcServerConfig.Path, apiRouter)
+		apiServer := newServer.router.Path(rpcServerConfig.Path).Subrouter()
+		apiServer.Use(rpcServerConfig.Middleware...)
+		apiServer.Handle("", rpcServer)
 	}
 
 	return newServer
