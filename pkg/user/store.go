@@ -13,13 +13,13 @@ type Store interface {
 	List(ListRequest) (*ListResponse, error)
 }
 
-const ServiceProvider = "User-Store"
+const StoreServiceProviderName = "UserStore"
 
-const CreateService = ServiceProvider + ".Create"
-const RetrieveService = ServiceProvider + ".Retrieve"
-const UpdateService = ServiceProvider + ".Update"
-const DeleteService = ServiceProvider + ".Delete"
-const ListService = ServiceProvider + ".List"
+const CreateService = StoreServiceProviderName + ".Create"
+const RetrieveService = StoreServiceProviderName + ".Retrieve"
+const UpdateService = StoreServiceProviderName + ".Update"
+const DeleteService = StoreServiceProviderName + ".Delete"
+const ListService = StoreServiceProviderName + ".List"
 
 type CreateRequest struct {
 	User User `validate:"required"`
