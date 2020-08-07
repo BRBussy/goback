@@ -84,10 +84,39 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 			},
 		); err == nil {
 			// if there was no error during retrieval
-			// a user with this email address already exists
+			// a user with this email already exists
 			reasonsInvalid = append(
 				reasonsInvalid,
 				"email already in use",
+			)
+		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
+			// errors other than not "NotFound" are unexpected
+			log.Error().Err(err).Msg("error retrieving user")
+			return nil, exception.NewErrUnexpected(err)
+		}
+	}
+
+	// confirm username set
+	if request.User.Email == "" {
+		reasonsInvalid = append(
+			reasonsInvalid,
+			"username not set",
+		)
+	} else {
+		// if it is set then try and retrieve a user by it
+		// to check if the is already in use
+		if _, err := b.userStore.Retrieve(
+			RetrieveRequest{
+				Filter: filter.NewUsernameFilter(
+					request.User.Username,
+				),
+			},
+		); err == nil {
+			// if there was no error during retrieval
+			// a user with this username already exists
+			reasonsInvalid = append(
+				reasonsInvalid,
+				"username already in use",
 			)
 		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
 			// errors other than not "NotFound" are unexpected
