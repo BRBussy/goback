@@ -10,7 +10,6 @@ import (
 	"github.com/BRBussy/goback/pkg/validate"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
-	"strings"
 )
 
 type BasicAdmin struct {
@@ -36,9 +35,11 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 		return nil, err
 	}
 
-	// clean up user entity
+	// password should be set explicitly
 	request.User.Password = make([]byte, 0)
-	request.User.Email = strings.ReplaceAll(strings.ToLower(request.User.Email), " ", "")
+
+	// registration should be set explicitly
+	request.User.Registered = false
 
 	// validate the user for creation
 	reasonsInvalid := make([]string, 0)

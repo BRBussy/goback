@@ -1,10 +1,11 @@
 package user
 
 type User struct {
-	ID       string   `json:"id" bson:"id"`
-	Email    string   `validate:"required,email" json:"email" bson:"email"`
-	RoleIDs  []string `validate:"required" json:"roleIDs" bson:"roleIDs"`
-	Password []byte   `json:"-" bson:"password"`
+	ID         string   `json:"id" bson:"id"`
+	Email      string   `validate:"required,email" json:"email" bson:"email"`
+	RoleIDs    []string `validate:"required" json:"roleIDs" bson:"roleIDs"`
+	Registered bool     `json:"registered" bson:"registered"`
+	Password   []byte   `json:"-" bson:"password"`
 }
 
 func (u User) Equal(u2 User) bool {
@@ -12,6 +13,9 @@ func (u User) Equal(u2 User) bool {
 		return false
 	}
 	if u.Email != u2.ID {
+		return false
+	}
+	if u.Registered != u2.Registered {
 		return false
 	}
 

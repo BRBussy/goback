@@ -38,4 +38,6 @@ func RootUserSync(
 	if len(listRolesResponse.Records) != len(rootUserRoleNames) {
 		log.Fatal().Msg("incorrect number of roles listed")
 	}
+
+	// try and retrieve the root user
 }
