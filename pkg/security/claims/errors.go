@@ -27,3 +27,13 @@ func NewErrInvalidType(t Type) *ErrInvalidType {
 func (e *ErrInvalidType) Error() string {
 	return "invalid claims type: " + e.Type.String()
 }
+
+type ErrClaimsNotInContext struct{}
+
+func NewErrClaimsNotInContext() *ErrClaimsNotInContext {
+	return &ErrClaimsNotInContext{}
+}
+
+func (e *ErrClaimsNotInContext) Error() string {
+	return "claims not in context"
+}

@@ -4,24 +4,28 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/BRBussy/goback/pkg/exception"
 )
 
-func ParseClaimsFromContext(ctx context.Context) (Claims, error) {
+func ParseFromContext(ctx context.Context) (Claims, error) {
 	// look for claims in context
 	marshalledClaimsInterface := ctx.Value("Claims")
 	if marshalledClaimsInterface == nil {
-		return nil, ErrClaimsNotInContext{}
+		return nil, NewErrClaimsNotInContext()
 	}
 
 	// try an cast claims to string
-	marshalledClaims, ok := marshalledClaimsInterface.([]byte)
+	marshalledClaims, ok := marshalledClaimsInterface.(json.RawMessage)
 	if !ok {
-		return nil, errors.New("unexpected error")
+		return nil, exception.NewErrUnexpected(
+			errors.New("unable to cast context to json.RawMessage"),
+		)
 	}
 
-	var serializedClaims Serialized
+	// parse the claims from json
+	var serializedClaims SerializedClaims
 	if err := json.Unmarshal(marshalledClaims, &serializedClaims); err != nil {
-		return nil, ErrUnmarshal{Reasons: []string{err.Error()}}
+		return nil, NewErrJSONUnmarshallError(err)
 	}
 
 	return serializedClaims.Claims, nil
