@@ -9,7 +9,8 @@ import (
 )
 
 var rootUser = user.User{
-	Email: "root@goback.com",
+	Username: "root",
+	Email:    "root@example.com",
 }
 
 var rootUserRoleNames = []string{
