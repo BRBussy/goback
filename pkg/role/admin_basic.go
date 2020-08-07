@@ -59,15 +59,13 @@ func (b BasicAdmin) AddNewRole(request AddNewRoleRequest) (*AddNewRoleResponse, 
 
 	// create role
 	if _, err := b.roleStore.Create(
-		CreateRequest{
-			Role: request.Role,
-		},
+		CreateRequest{Role: request.Role},
 	); err != nil {
 		log.Error().Err(err).Msg("error creating role")
 		return nil, exception.NewErrUnexpected(err)
 	}
 
-	return &AddNewRoleResponse{}, nil
+	return &AddNewRoleResponse{Role: request.Role}, nil
 }
 
 func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, error) {
@@ -79,9 +77,7 @@ func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, 
 	// try and retrieve the role that is to be updated
 	retrieveRoleResponse, err := b.roleStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewIDFilter(
-				request.Role.ID,
-			),
+			Filter: filter.NewIDFilter(request.Role.ID),
 		},
 	)
 	if errors.Is(err, &mongo.ErrNotFound{}) {

@@ -31,8 +31,8 @@ func (s SerializedFilter) UnmarshalJSON(bytes []byte) error {
 	}
 
 	switch t.Type {
-	case EmailAddressFilterType:
-		f := new(EmailAddress)
+	case EmailFilterType:
+		f := new(Email)
 		if err := json.Unmarshal(bytes, f); err != nil {
 			return NewErrJSONUnmarshallError(err)
 		}
