@@ -17,3 +17,14 @@ func (e *ErrUnexpected) Error() string {
 func (e *ErrUnexpected) Unwrap() error {
 	return e.Err
 }
+
+type ErrNoChangesMade struct {
+}
+
+func NewErrNoChangesMade() *ErrNoChangesMade {
+	return &ErrNoChangesMade{}
+}
+
+func (e *ErrNoChangesMade) Error() string {
+	return "no changes made"
+}

@@ -92,6 +92,11 @@ func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, 
 		return nil, exception.NewErrUnexpected(err)
 	}
 
+	// confirm that changes were actually made
+	if !retrieveRoleResponse.Role.Compare(request.Role) {
+		return nil, exception.NewErrNoChangesMade()
+	}
+
 	// if the role's name has changed then check that
 	// there is no other role with this name
 	if request.Role.Name != retrieveRoleResponse.Role.Name {
