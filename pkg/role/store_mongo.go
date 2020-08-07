@@ -11,8 +11,8 @@ import (
 )
 
 type MongoStore struct {
-	validator  *validate.RequestValidator
-	collection *mongo.Collection
+	requestValidator *validate.RequestValidator
+	collection       *mongo.Collection
 }
 
 func NewMongoStore(
@@ -32,14 +32,13 @@ func NewMongoStore(
 	}
 
 	return &MongoStore{
-		validator:  validate.NewRequestValidator(),
-		collection: collection,
+		requestValidator: validate.NewRequestValidator(),
+		collection:       collection,
 	}
 }
 
 func (m MongoStore) Create(request CreateRequest) (*CreateResponse, error) {
-	// validate service request
-	if err := m.validator.Validate(request); err != nil {
+	if err := m.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
@@ -54,8 +53,7 @@ func (m MongoStore) Create(request CreateRequest) (*CreateResponse, error) {
 }
 
 func (m MongoStore) Retrieve(request RetrieveRequest) (*RetrieveResponse, error) {
-	// validate service request
-	if err := m.validator.Validate(request); err != nil {
+	if err := m.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
@@ -77,8 +75,7 @@ func (m MongoStore) Retrieve(request RetrieveRequest) (*RetrieveResponse, error)
 }
 
 func (m MongoStore) Update(request UpdateRequest) (*UpdateResponse, error) {
-	// validate service request
-	if err := m.validator.Validate(request); err != nil {
+	if err := m.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
@@ -94,8 +91,7 @@ func (m MongoStore) Update(request UpdateRequest) (*UpdateResponse, error) {
 }
 
 func (m MongoStore) Delete(request DeleteRequest) (*DeleteResponse, error) {
-	// validate service request
-	if err := m.validator.Validate(request); err != nil {
+	if err := m.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
@@ -111,8 +107,7 @@ func (m MongoStore) Delete(request DeleteRequest) (*DeleteResponse, error) {
 }
 
 func (m MongoStore) List(request ListRequest) (*ListResponse, error) {
-	// validate the service request
-	if err := m.validator.Validate(request); err != nil {
+	if err := m.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}

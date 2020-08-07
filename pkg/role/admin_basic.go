@@ -6,22 +6,21 @@ import (
 )
 
 type BasicAdmin struct {
-	validator *validate.RequestValidator
-	roleStore Store
+	requestValidator *validate.RequestValidator
+	roleStore        Store
 }
 
 func NewBasicAdmin(
 	roleStore Store,
 ) *BasicAdmin {
 	return &BasicAdmin{
-		validator: validate.NewRequestValidator(),
-		roleStore: roleStore,
+		requestValidator: validate.NewRequestValidator(),
+		roleStore:        roleStore,
 	}
 }
 
 func (b BasicAdmin) AddNewRole(request AddNewRoleRequest) (*AddNewRoleResponse, error) {
-	// validate service request
-	if err := b.validator.Validate(request); err != nil {
+	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
@@ -30,8 +29,7 @@ func (b BasicAdmin) AddNewRole(request AddNewRoleRequest) (*AddNewRoleResponse, 
 }
 
 func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, error) {
-	// validate service request
-	if err := b.validator.Validate(request); err != nil {
+	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}

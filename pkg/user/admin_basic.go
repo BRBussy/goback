@@ -7,9 +7,9 @@ import (
 )
 
 type BasicAdmin struct {
-	validator *validate.RequestValidator
-	userStore Store
-	roleStore role.Store
+	requestValidator *validate.RequestValidator
+	userStore        Store
+	roleStore        role.Store
 }
 
 func NewBasicAdmin(
@@ -17,14 +17,14 @@ func NewBasicAdmin(
 	roleStore role.Store,
 ) *BasicAdmin {
 	return &BasicAdmin{
-		validator: validate.NewRequestValidator(),
-		userStore: userStore,
+		requestValidator: validate.NewRequestValidator(),
+		userStore:        userStore,
+		roleStore:        roleStore,
 	}
 }
 
 func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, error) {
-	// validate service request
-	if err := b.validator.Validate(request); err != nil {
+	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
