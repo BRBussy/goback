@@ -19,7 +19,7 @@ var rootUserRoleNames = []string{
 func RootUserSync(
 	roleStore role.Store,
 	userStore user.Store,
-	useAdmin user.Admin,
+	userAdmin user.Admin,
 	rootPassword string,
 ) {
 	// search for all of the root user roles
@@ -38,6 +38,4 @@ func RootUserSync(
 	if len(listRolesResponse.Records) != len(rootUserRoleNames) {
 		log.Fatal().Msg("incorrect number of roles listed")
 	}
-
-	// try and retrieve the root user
 }

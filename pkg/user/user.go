@@ -2,6 +2,7 @@ package user
 
 type User struct {
 	ID         string   `json:"id" bson:"id"`
+	Username   string   `json:"username" bson:"username"`
 	Email      string   `validate:"required,email" json:"email" bson:"email"`
 	RoleIDs    []string `validate:"required" json:"roleIDs" bson:"roleIDs"`
 	Registered bool     `json:"registered" bson:"registered"`
@@ -10,6 +11,9 @@ type User struct {
 
 func (u User) Equal(u2 User) bool {
 	if u.ID != u2.ID {
+		return false
+	}
+	if u.Username != u2.Username {
 		return false
 	}
 	if u.Email != u2.ID {

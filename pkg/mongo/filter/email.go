@@ -12,8 +12,8 @@ func (e *Email) Type() Type {
 	return EmailFilterType
 }
 
-func NewEmailFilter(emailAddress string) *Email {
-	return &Email{email: emailAddress}
+func NewEmailFilter(email string) *Email {
+	return &Email{email: email}
 }
 
 func (e *Email) ToOrderedBSON() bson.D {
