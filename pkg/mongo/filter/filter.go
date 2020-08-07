@@ -5,15 +5,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type Filter interface {
-	ToOrderedBSON() bson.D
-	Type() Type
-}
-
 type Type string
 
 func (t Type) String() string {
 	return string(t)
+}
+
+type Filter interface {
+	ToOrderedBSON() bson.D
+	Type() Type
 }
 
 type SerializedFilter struct {
@@ -24,7 +24,7 @@ type typeHolder struct {
 	Type Type `json:"type"`
 }
 
-func (s SerializedFilter) UnmarshalJSON(bytes []byte) error {
+func (s *SerializedFilter) UnmarshalJSON(bytes []byte) error {
 	var t typeHolder
 	if err := json.Unmarshal(bytes, &t); err != nil {
 		return NewErrJSONUnmarshallError(err)

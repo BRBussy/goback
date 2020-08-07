@@ -9,7 +9,7 @@ func NewErrInvalidType(t Type) *ErrInvalidType {
 }
 
 func (e *ErrInvalidType) Error() string {
-	return "invalid type: " + e.Type.String()
+	return "invalid filter type: " + e.Type.String()
 }
 
 type ErrJSONUnmarshallError struct {
@@ -21,7 +21,7 @@ func NewErrJSONUnmarshallError(err error) *ErrJSONUnmarshallError {
 }
 
 func (e *ErrJSONUnmarshallError) Error() string {
-	return "json unmarshall error: " + e.Err.Error()
+	return "filter json unmarshall error: " + e.Err.Error()
 }
 
 func (e *ErrJSONUnmarshallError) Unwrap() error {

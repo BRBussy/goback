@@ -1,30 +1,29 @@
 package claims
 
-import "strings"
-
-type ErrInvalidSerializedClaims struct {
-	Reasons []string
+type ErrJSONUnmarshallError struct {
+	Err error
 }
 
-func (e ErrInvalidSerializedClaims) Error() string {
-	return "invalid serialized claims: " + strings.Join(e.Reasons, ", ")
+func NewErrJSONUnmarshallError(err error) *ErrJSONUnmarshallError {
+	return &ErrJSONUnmarshallError{Err: err}
 }
 
-type ErrUnmarshal struct {
-	Reasons []string
+func (e *ErrJSONUnmarshallError) Error() string {
+	return "claims json unmarshall error: " + e.Err.Error()
 }
 
-func (e ErrUnmarshal) Error() string {
-	return "unmarshalling error: " + strings.Join(e.Reasons, ", ")
+func (e *ErrJSONUnmarshallError) Unwrap() error {
+	return e.Err
 }
 
-type ErrMarshal struct {
-	Reasons []string
+type ErrInvalidType struct {
+	Type Type
 }
 
-type ErrClaimsNotInContext struct {
+func NewErrInvalidType(t Type) *ErrInvalidType {
+	return &ErrInvalidType{Type: t}
 }
 
-func (e ErrClaimsNotInContext) Error() string {
-	return "claims not in context"
+func (e *ErrInvalidType) Error() string {
+	return "invalid claims type: " + e.Type.String()
 }
