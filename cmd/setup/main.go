@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	roleSyncConfig "github.com/BRBussy/goback/cmd/roleSync/config"
-	"github.com/BRBussy/goback/pkg/app"
+	roleSyncConfig "github.com/BRBussy/goback/cmd/setup/config"
 	"github.com/BRBussy/goback/pkg/logs"
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/role"
+	"github.com/BRBussy/goback/pkg/setup"
 	"github.com/rs/zerolog/log"
 	"time"
 )
@@ -48,7 +48,8 @@ func main() {
 	roleBasicAdmin := role.NewBasicAdmin(roleMongoStore)
 
 	// run role sync
-	app.RoleSync(
+	log.Info().Msg("__________ Running Role Sync __________")
+	setup.RoleSync(
 		roleMongoStore,
 		roleBasicAdmin,
 	)

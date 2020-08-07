@@ -10,7 +10,7 @@ func init() {
 	viper.SetDefault("MongoDBHosts", []string{"localhost:27017"})
 }
 
-// Config holds configuration information for the roleSync
+// Config holds configuration information for the setup
 type Config struct {
 	MongoDBConnectionString string
 	MongoDBHosts            []string
@@ -22,7 +22,7 @@ type Config struct {
 // GetConfig looks for and tries to parse a .toml config file with the given name
 func GetConfig(configFileName *string) (*Config, error) {
 	// set places to look for config file
-	viper.AddConfigPath("cmd/roleSync/config")
+	viper.AddConfigPath("cmd/setup/config")
 	viper.AddConfigPath("config")
 	viper.AddConfigPath(".")
 
