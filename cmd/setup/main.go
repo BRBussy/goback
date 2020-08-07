@@ -7,6 +7,7 @@ import (
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/role"
 	"github.com/BRBussy/goback/pkg/setup"
+	"github.com/BRBussy/goback/pkg/user"
 	"github.com/rs/zerolog/log"
 	"time"
 )
@@ -47,10 +48,23 @@ func main() {
 	roleMongoStore := role.NewMongoStore(mongoDbConn)
 	roleBasicAdmin := role.NewBasicAdmin(roleMongoStore)
 
-	// run role sync
+	userMongoStore := user.NewMongoStore(mongoDbConn)
+	userBasicAdmin := user.NewBasicAdmin(
+		userMongoStore,
+		roleMongoStore,
+	)
+
 	log.Info().Msg("__________ Running Role Sync __________")
 	setup.RoleSync(
 		roleMongoStore,
 		roleBasicAdmin,
+	)
+
+	log.Info().Msg("__________ Running Root User Sync __________")
+	setup.RootUserSync(
+		roleMongoStore,
+		userMongoStore,
+		userBasicAdmin,
+		config.RootUserPassword,
 	)
 }

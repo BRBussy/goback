@@ -8,6 +8,7 @@ import (
 func init() {
 	viper.SetDefault("MongoDBName", "goback")
 	viper.SetDefault("MongoDBHosts", []string{"localhost:27017"})
+	viper.SetDefault("RootUserPassword", "123")
 }
 
 // Config holds configuration information for the setup
@@ -17,6 +18,7 @@ type Config struct {
 	MongoDBName             string
 	MongoDBUsername         string
 	MongoDBPassword         string
+	RootUserPassword        string
 }
 
 // GetConfig looks for and tries to parse a .toml config file with the given name
