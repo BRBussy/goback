@@ -11,7 +11,7 @@ const AddNewRoleService = AdminServiceProviderName + ".AddNewRole"
 const UpdateRoleService = AdminServiceProviderName + ".UpdateRole"
 
 type AddNewRoleRequest struct {
-	Role Role
+	Role Role `validate:"-"`
 }
 
 type AddNewRoleResponse struct {
@@ -19,9 +19,8 @@ type AddNewRoleResponse struct {
 }
 
 type UpdateRoleRequest struct {
-	Role Role
+	Role Role `validate:"required"`
 }
 
 type UpdateRoleResponse struct {
-	Role Role
 }

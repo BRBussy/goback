@@ -12,6 +12,16 @@ func (e *ErrRoleAlreadyExists) Error() string {
 	return "role already exists"
 }
 
+type ErrRoleDoesNotExist struct{}
+
+func NewErrRoleDoesNotExist() *ErrRoleDoesNotExist {
+	return &ErrRoleDoesNotExist{}
+}
+
+func (e *ErrRoleDoesNotExist) Error() string {
+	return "role does not exist"
+}
+
 type ErrRoleNotValid struct {
 	ReasonsInvalid []string
 }
