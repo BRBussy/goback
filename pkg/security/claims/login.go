@@ -6,8 +6,8 @@ import (
 )
 
 type Login struct {
-	UserID         string `validate:"required" json:"userID"`
-	ExpirationTime int64  `validate:"required" json:"expirationTime"`
+	UserID         string    `validate:"required" json:"userID"`
+	ExpirationTime time.Time `validate:"required" json:"expirationTime"`
 }
 
 func (l Login) Type() Type {
@@ -16,9 +16,9 @@ func (l Login) Type() Type {
 
 func (l Login) ToJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Type           Type   `json:"type"`
-		UserID         string `json:"userID"`
-		ExpirationTime int64  `json:"expirationTime"`
+		Type           Type      `json:"type"`
+		UserID         string    `json:"userID"`
+		ExpirationTime time.Time `json:"expirationTime"`
 	}{
 		Type:           l.Type(),
 		UserID:         l.UserID,
@@ -27,5 +27,5 @@ func (l Login) ToJSON() ([]byte, error) {
 }
 
 func (l Login) Expired() bool {
-	return time.Now().UTC().After(time.Unix(l.ExpirationTime, 0).UTC())
+	return time.Now().UTC().After(l.ExpirationTime)
 }
