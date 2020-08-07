@@ -46,7 +46,7 @@ func main() {
 	}()
 
 	//
-	// Service Providers
+	// instantiate service providers
 	//
 	roleMongoStore := role.NewMongoStore(mongoDbConn)
 

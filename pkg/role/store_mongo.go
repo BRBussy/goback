@@ -21,7 +21,7 @@ func NewMongoStore(
 	// get collection
 	collection := database.Collection("role")
 
-	// setup collection indices
+	// roleSync collection indices
 	if err := collection.SetupIndices(
 		[]mongoDriver.IndexModel{
 			mongo.NewUniqueIndex("id"),
