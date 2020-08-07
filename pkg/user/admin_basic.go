@@ -31,3 +31,12 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 
 	return &AddNewUserResponse{}, nil
 }
+
+func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, error) {
+	if err := b.requestValidator.Validate(request); err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	return &UpdateUserResponse{}, nil
+}
