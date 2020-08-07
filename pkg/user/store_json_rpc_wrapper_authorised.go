@@ -10,7 +10,9 @@ type StoreAuthorisedJSONRPCWrapper struct {
 	store Store
 }
 
-func NewStoreAuthorisedJSONRPCWrapper(userStore Store) *StoreAuthorisedJSONRPCWrapper {
+func NewStoreAuthorisedJSONRPCWrapper(
+	userStore Store,
+) *StoreAuthorisedJSONRPCWrapper {
 	return &StoreAuthorisedJSONRPCWrapper{store: userStore}
 }
 

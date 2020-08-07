@@ -16,21 +16,23 @@ func (a AdminAuthorisedJSONRPCWrapper) ServiceProviderName() string {
 	return AdminServiceProviderName
 }
 
-type GetJSONRPCRequest struct {
+type AddNewUserJSONRPCRequest struct {
 	User User `json:"user"`
 }
 
-type GetJSONRPCResponse struct {
+type AddNewUserJSONRPCResponse struct {
 	User User `json:"user"`
 }
 
-func (a *AdminAuthorisedJSONRPCWrapper) Get(r *http.Request, request *GetJSONRPCRequest, response *GetJSONRPCResponse) error {
-	getResponse, err := a.admin.Get(
-		GetRequest(*request),
+func (a *AdminAuthorisedJSONRPCWrapper) AddNewUser(r *http.Request, request *AddNewUserJSONRPCRequest, response *AddNewUserJSONRPCResponse) error {
+	addNewUserResponse, err := a.admin.AddNewUser(
+		AddNewUserRequest(*request),
 	)
 	if err != nil {
 		return err
 	}
-	response.User = getResponse.User
+
+	response.User = addNewUserResponse.User
+
 	return err
 }

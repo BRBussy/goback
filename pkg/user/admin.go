@@ -1,27 +1,17 @@
 package user
 
 type Admin interface {
-	Get(GetRequest) (*GetResponse, error)
-	Set(SetRequest) (*SetResponse, error)
+	AddNewUser(AddNewUserRequest) (*AddNewUserResponse, error)
 }
 
 const AdminServiceProviderName = "User-Admin"
 
-const GetService = AdminServiceProviderName + ".Get"
-const SetService = AdminServiceProviderName + ".Set"
+const AddNewUserService = AdminServiceProviderName + ".AddNewUser"
 
-type GetRequest struct {
+type AddNewUserRequest struct {
 	User User
 }
 
-type GetResponse struct {
-	User User
-}
-
-type SetRequest struct {
-	User User
-}
-
-type SetResponse struct {
+type AddNewUserResponse struct {
 	User User
 }

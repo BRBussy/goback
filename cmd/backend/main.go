@@ -6,6 +6,7 @@ import (
 	"github.com/BRBussy/goback/pkg/jsonrpc"
 	"github.com/BRBussy/goback/pkg/logs"
 	"github.com/BRBussy/goback/pkg/mongo"
+	"github.com/BRBussy/goback/pkg/role"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -47,7 +48,13 @@ func main() {
 	//
 	// Service Providers
 	//
+	roleMongoStore := role.NewMongoStore(mongoDbConn)
+
 	userMongoStore := user.NewMongoStore(mongoDbConn)
+	userBasicAdmin := user.NewBasicAdmin(
+		userMongoStore,
+		roleMongoStore,
+	)
 
 	// create JSON-RPC HTTP server
 	jsonRPCHTTPServer := jsonrpc.NewServer(
@@ -58,24 +65,20 @@ func main() {
 			// Public API Server
 			//
 			{
-				Name:       "Public",
-				Path:       "/api/public",
-				Middleware: []mux.MiddlewareFunc{},
-				ServiceProviders: []jsonrpc.ServiceProvider{
-					user.NewAuthenticatedJSONRPCWrapper(userMongoStore),
-				},
+				Name:             "Public",
+				Path:             "/api/public",
+				Middleware:       []mux.MiddlewareFunc{},
+				ServiceProviders: []jsonrpc.ServiceProvider{},
 			},
 
 			//
 			// Authenticated API Server
 			//
 			{
-				Name:       "Public",
-				Path:       "/api/authenticated",
-				Middleware: []mux.MiddlewareFunc{},
-				ServiceProviders: []jsonrpc.ServiceProvider{
-					user.NewAuthenticatedJSONRPCWrapper(userMongoStore),
-				},
+				Name:             "Public",
+				Path:             "/api/authenticated",
+				Middleware:       []mux.MiddlewareFunc{},
+				ServiceProviders: []jsonrpc.ServiceProvider{},
 			},
 
 			//
@@ -86,7 +89,8 @@ func main() {
 				Path:       "/api/authorised",
 				Middleware: []mux.MiddlewareFunc{},
 				ServiceProviders: []jsonrpc.ServiceProvider{
-					user.NewAuthenticatedJSONRPCWrapper(userMongoStore),
+					user.NewStoreAuthorisedJSONRPCWrapper(userMongoStore),
+					user.NewAdminAuthorisedJSONRPCWrapper(userBasicAdmin),
 				},
 			},
 		},

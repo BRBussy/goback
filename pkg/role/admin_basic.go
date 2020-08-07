@@ -19,22 +19,22 @@ func NewBasicAdmin(
 	}
 }
 
-func (b BasicAdmin) Get(request GetRequest) (*GetResponse, error) {
+func (b BasicAdmin) AddNewRole(request AddNewRoleRequest) (*AddNewRoleResponse, error) {
 	// validate service request
 	if err := b.validator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
 
-	return &GetResponse{}, nil
+	return &AddNewRoleResponse{}, nil
 }
 
-func (b BasicAdmin) Set(request SetRequest) (*SetResponse, error) {
+func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, error) {
 	// validate service request
 	if err := b.validator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
 
-	return &SetResponse{}, nil
+	return &UpdateRoleResponse{}, nil
 }

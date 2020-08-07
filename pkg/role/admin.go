@@ -1,27 +1,27 @@
 package role
 
 type Admin interface {
-	Get(GetRequest) (*GetResponse, error)
-	Set(SetRequest) (*SetResponse, error)
+	AddNewRole(AddNewRoleRequest) (*AddNewRoleResponse, error)
+	UpdateRole(UpdateRoleRequest) (*UpdateRoleResponse, error)
 }
 
 const AdminServiceProviderName = "Role-Admin"
 
-const GetService = AdminServiceProviderName + ".Get"
-const SetService = AdminServiceProviderName + ".Set"
+const AddNewRoleService = AdminServiceProviderName + ".AddNewRole"
+const UpdateRoleService = AdminServiceProviderName + ".UpdateRole"
 
-type GetRequest struct {
+type AddNewRoleRequest struct {
 	Role Role
 }
 
-type GetResponse struct {
+type AddNewRoleResponse struct {
 	Role Role
 }
 
-type SetRequest struct {
+type UpdateRoleRequest struct {
 	Role Role
 }
 
-type SetResponse struct {
+type UpdateRoleResponse struct {
 	Role Role
 }
