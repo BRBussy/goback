@@ -46,7 +46,7 @@ func (b BasicAdmin) AddNewRole(request AddNewRoleRequest) (*AddNewRoleResponse, 
 		// if there was no error during retrieval, the role already exists
 		return nil, NewErrRoleAlreadyExists()
 	} else if !errors.Is(err, &mongo.ErrNotFound{}) {
-		// if there was an error that is not "NotFound" this is an unexpected error
+		// errors other than not "NotFound" are unexpected
 		log.Error().Err(err).Msg("error retrieving role")
 		return nil, exception.NewErrUnexpected(err)
 	}
@@ -83,13 +83,13 @@ func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, 
 	if errors.Is(err, &mongo.ErrNotFound{}) {
 		return nil, NewErrRoleDoesNotExist()
 	} else if err != nil {
-		// if there was an error that is not "NotFound" this is an unexpected error
+		// errors other than not "NotFound" are unexpected
 		log.Error().Err(err).Msg("error retrieving role")
 		return nil, exception.NewErrUnexpected(err)
 	}
 
 	// confirm that changes were actually made
-	if !retrieveRoleResponse.Role.Compare(request.Role) {
+	if retrieveRoleResponse.Role.Equal(request.Role) {
 		return nil, exception.NewErrNoChangesMade()
 	}
 
@@ -106,7 +106,7 @@ func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, 
 			// if there was no error during retrieval, the role already exists
 			return nil, NewErrRoleNotValid([]string{"name already in use"})
 		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
-			// if there was an error that is not "NotFound" this is an unexpected error
+			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving role")
 			return nil, exception.NewErrUnexpected(err)
 		}

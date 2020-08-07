@@ -6,7 +6,7 @@ type Role struct {
 	Permissions []string `validate:"required" json:"permissions" bson:"permissions"`
 }
 
-func (r Role) Compare(r2 Role) bool {
+func (r Role) Equal(r2 Role) bool {
 	if r.ID != r2.ID {
 		return false
 	}

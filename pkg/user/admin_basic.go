@@ -59,7 +59,7 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 					fmt.Sprintf("role with ID %s does not exist", roleID),
 				)
 			} else if err != nil {
-				// if there was an error that is not "NotFound" this is an unexpected error
+				// errors other than not "NotFound" are unexpected
 				log.Error().Err(err).Msg("error retrieving role")
 				return nil, exception.NewErrUnexpected(err)
 			}
@@ -89,7 +89,7 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 				"email already in use",
 			)
 		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
-			// if there was an error that is not "NotFound" this is an unexpected error
+			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
 		}
@@ -117,6 +117,81 @@ func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, 
 	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
+	}
+
+	// try and retrieve the user that is to be updated
+	retrieveUserResponse, err := b.userStore.Retrieve(
+		RetrieveRequest{
+			Filter: filter.NewIDFilter(request.User.ID),
+		},
+	)
+	if errors.Is(err, &mongo.ErrNotFound{}) {
+		return nil, NewErrUserDoesNotExist()
+	} else if err != nil {
+		// errors other than not "NotFound" are unexpected
+		log.Error().Err(err).Msg("error retrieving user")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// confirm that changes were actually made
+	if retrieveUserResponse.User.Equal(request.User) {
+		return nil, exception.NewErrNoChangesMade()
+	}
+
+	// validate the user for update
+	reasonsInvalid := make([]string, 0)
+
+	// if the email address has changed confirm that
+	// the new email address is not already in use
+	if request.User.Email != retrieveUserResponse.User.Email {
+		if _, err := b.userStore.Retrieve(
+			RetrieveRequest{
+				Filter: filter.NewEmailFilter(
+					request.User.Email,
+				),
+			},
+		); err == nil {
+			// if there was no error during retrieval
+			// a user with this email address already exists
+			reasonsInvalid = append(
+				reasonsInvalid,
+				"email already in use",
+			)
+		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
+			// errors other than not "NotFound" are unexpected
+			log.Error().Err(err).Msg("error retrieving user")
+			return nil, exception.NewErrUnexpected(err)
+		}
+	}
+
+	// confirm that all of the roles exist
+	// then confirm that each is references a valid role
+	for _, roleID := range request.User.RoleIDs {
+		if _, err := b.roleStore.Retrieve(
+			role.RetrieveRequest{
+				Filter: filter.NewIDFilter(roleID),
+			},
+		); errors.Is(err, &mongo.ErrNotFound{}) {
+			reasonsInvalid = append(
+				reasonsInvalid,
+				fmt.Sprintf("role with ID %s is does not exist", roleID),
+			)
+		} else if err != nil {
+			// errors other than not "NotFound" are unexpected
+			log.Error().Err(err).Msg("error retrieving role")
+			return nil, exception.NewErrUnexpected(err)
+		}
+	}
+
+	if len(reasonsInvalid) > 0 {
+		return nil, NewErrUserNotValid(reasonsInvalid)
+	}
+
+	// update the user
+	if _, err := b.userStore.Update(
+		UpdateRequest{User: request.User},
+	); err != nil {
+		log.Error().Err(err).Msg("unable to update user")
 	}
 
 	return &UpdateUserResponse{}, nil
