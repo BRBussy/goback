@@ -25,7 +25,7 @@ func NewMongoStore(
 	if err := collection.SetupIndices(
 		[]mongoDriver.IndexModel{
 			mongo.NewUniqueIndex("id"),
-			mongo.NewUniqueIndex("email"),
+			mongo.NewUniqueIndex("name"),
 		},
 	); err != nil {
 		log.Fatal().Err(err).Msg("error setting up role collection indices")
