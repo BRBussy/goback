@@ -6,7 +6,25 @@ type Role struct {
 	Permissions []string `validate:"required" json:"permissions" bson:"permissions"`
 }
 
-func (r Role) Equal(r2 Role) bool {
+func (r *Role) AddUniquePermissions(permissionsToAdd ...string) {
+	// index existing permissions
+	existingPermIdx := make(map[string]bool)
+	for _, existingPerm := range r.Permissions {
+		existingPermIdx[existingPerm] = true
+	}
+
+	// add permissions not already on role
+	for _, permToAdd := range permissionsToAdd {
+		if !existingPermIdx[permToAdd] {
+			r.Permissions = append(
+				r.Permissions,
+				permToAdd,
+			)
+		}
+	}
+}
+
+func (r *Role) Equal(r2 Role) bool {
 	if r.ID != r2.ID {
 		return false
 	}
