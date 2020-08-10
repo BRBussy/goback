@@ -62,7 +62,7 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 	// generate a login claims JWT
 	generateTokenResponse, err := b.jwtGenerator.Generate(
 		jwt.GenerateRequest{
-			Claims: claims.Login{
+			Claims: claims.LoginClaims{
 				UserID:         retrieveUserResponse.User.ID,
 				ExpirationTime: time.Now().Add(24 * time.Hour),
 			},
