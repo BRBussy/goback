@@ -9,11 +9,9 @@ type BasicGenerator struct {
 	requestValidator *validate.RequestValidator
 }
 
-func NewBasicGenerator(
-	requestValidator *validate.RequestValidator,
-) *BasicGenerator {
+func NewBasicGenerator() *BasicGenerator {
 	return &BasicGenerator{
-		requestValidator: requestValidator,
+		requestValidator: validate.NewRequestValidator(),
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/BRBussy/goback/pkg/role"
 	"github.com/BRBussy/goback/pkg/security/authentication"
 	"github.com/BRBussy/goback/pkg/security/authorisation"
+	"github.com/BRBussy/goback/pkg/security/jwt"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -58,17 +59,22 @@ func main() {
 		roleMongoStore,
 	)
 
+	jwtBasicGenerator := jwt.NewBasicGenerator()
+
 	basicAuthoriser := authorisation.NewBasicAuthoriser(
 		userMongoStore,
 		roleMongoStore,
 	)
+
 	basicAuthenticator := authentication.NewBasicAuthenticator(
 		userMongoStore,
+		jwtBasicGenerator,
 	)
 
 	//
 	// instantiate middleware
 	//
+	authenticationMiddleware := authentication.NewMiddleware(basicAuthenticator)
 	authorisationMiddleware := authorisation.NewMiddleware(basicAuthoriser)
 
 	// create JSON-RPC HTTP server
@@ -93,7 +99,7 @@ func main() {
 				Name: "Public",
 				Path: "/api/authenticated",
 				Middleware: []mux.MiddlewareFunc{
-					authorisationMiddleware.Apply,
+					authenticationMiddleware.Apply,
 				},
 				ServiceProviders: []jsonrpc.ServiceProvider{},
 			},
@@ -105,6 +111,7 @@ func main() {
 				Name: "Public",
 				Path: "/api/authorised",
 				Middleware: []mux.MiddlewareFunc{
+					authenticationMiddleware.Apply,
 					authorisationMiddleware.Apply,
 				},
 				ServiceProviders: []jsonrpc.ServiceProvider{
