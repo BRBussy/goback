@@ -5,14 +5,14 @@ import (
 )
 
 type Middleware struct {
-	authorizer Authorizer
+	authoriser Authoriser
 }
 
 func NewMiddleware(
-	authorizer Authorizer,
+	authoriser Authoriser,
 ) *Middleware {
 	return &Middleware{
-		authorizer: authorizer,
+		authoriser: authoriser,
 	}
 }
 

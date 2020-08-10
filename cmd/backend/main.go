@@ -7,6 +7,7 @@ import (
 	"github.com/BRBussy/goback/pkg/logs"
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/role"
+	"github.com/BRBussy/goback/pkg/security/authorisation"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -56,6 +57,16 @@ func main() {
 		roleMongoStore,
 	)
 
+	basicAuthoriser := authorisation.NewBasicAuthoriser(
+		userMongoStore,
+		roleMongoStore,
+	)
+
+	//
+	// instantiate middleware
+	//
+	authorisationMiddleware := authorisation.NewMiddleware(basicAuthoriser)
+
 	// create JSON-RPC HTTP server
 	jsonRPCHTTPServer := jsonrpc.NewServer(
 		"0.0.0.0",
@@ -75,9 +86,11 @@ func main() {
 			// Authenticated API Server
 			//
 			{
-				Name:             "Public",
-				Path:             "/api/authenticated",
-				Middleware:       []mux.MiddlewareFunc{},
+				Name: "Public",
+				Path: "/api/authenticated",
+				Middleware: []mux.MiddlewareFunc{
+					authorisationMiddleware.Apply,
+				},
 				ServiceProviders: []jsonrpc.ServiceProvider{},
 			},
 
@@ -85,9 +98,11 @@ func main() {
 			// Authorised API Server
 			//
 			{
-				Name:       "Public",
-				Path:       "/api/authorised",
-				Middleware: []mux.MiddlewareFunc{},
+				Name: "Public",
+				Path: "/api/authorised",
+				Middleware: []mux.MiddlewareFunc{
+					authorisationMiddleware.Apply,
+				},
 				ServiceProviders: []jsonrpc.ServiceProvider{
 					user.NewStoreAuthorisedJSONRPCWrapper(userMongoStore),
 					user.NewAdminAuthorisedJSONRPCWrapper(userBasicAdmin),

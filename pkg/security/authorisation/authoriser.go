@@ -2,7 +2,7 @@ package authorisation
 
 import "github.com/BRBussy/goback/pkg/security/claims"
 
-type Authorizer interface {
+type Authoriser interface {
 	ConfirmServiceAccess(ConfirmServiceAccessRequest) (*ConfirmServiceAccessResponse, error)
 }
 

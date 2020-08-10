@@ -7,24 +7,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type BasicAuthorizer struct {
+type BasicAuthoriser struct {
 	requestValidator *validate.RequestValidator
 	userStore        user.Store
 	roleStore        role.Store
 }
 
-func NewBasicAuthorizer(
+func NewBasicAuthoriser(
 	userStore user.Store,
 	roleStore role.Store,
-) *BasicAuthorizer {
-	return &BasicAuthorizer{
+) *BasicAuthoriser {
+	return &BasicAuthoriser{
 		requestValidator: validate.NewRequestValidator(),
 		userStore:        userStore,
 		roleStore:        roleStore,
 	}
 }
 
-func (b *BasicAuthorizer) ConfirmServiceAccess(request ConfirmServiceAccessRequest) (*ConfirmServiceAccessResponse, error) {
+func (b *BasicAuthoriser) ConfirmServiceAccess(request ConfirmServiceAccessRequest) (*ConfirmServiceAccessResponse, error) {
 	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
