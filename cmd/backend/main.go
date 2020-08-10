@@ -7,6 +7,7 @@ import (
 	"github.com/BRBussy/goback/pkg/logs"
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/role"
+	"github.com/BRBussy/goback/pkg/security/authentication"
 	"github.com/BRBussy/goback/pkg/security/authorisation"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/gorilla/mux"
@@ -60,6 +61,9 @@ func main() {
 	basicAuthoriser := authorisation.NewBasicAuthoriser(
 		userMongoStore,
 		roleMongoStore,
+	)
+	basicAuthenticator := authentication.NewBasicAuthenticator(
+		userMongoStore,
 	)
 
 	//
