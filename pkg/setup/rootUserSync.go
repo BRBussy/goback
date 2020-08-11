@@ -1,12 +1,12 @@
 package setup
 
 import (
+	"errors"
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/mongo/filter"
 	"github.com/BRBussy/goback/pkg/role"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var rootUser = user.User{
@@ -55,9 +55,9 @@ func RootUserSync(
 			Filter: filter.NewUsernameFilter(rootUser.Username),
 		},
 	)
-	switch err.(type) {
-	case *mongo.ErrNotFound:
-		// user does not exist yet - create and register it
+	if errors.Is(err, mongo.NewErrNotFound()) {
+		// root user not found and so does not exist yet
+		// create and register it
 
 		log.Info().Msg("root user does not exist")
 		log.Info().Msg("\t--> create it")
@@ -67,6 +67,7 @@ func RootUserSync(
 		if err != nil {
 			log.Fatal().Err(err).Msg("error adding root user")
 		}
+
 		log.Info().Msg("\t--> register it")
 		if _, err := userAdmin.RegisterUser(
 			user.RegisterUserRequest{
@@ -76,39 +77,53 @@ func RootUserSync(
 		); err != nil {
 			log.Fatal().Err(err).Msg("error registering user")
 		}
+		return
 
-	case nil:
-		// user already exists - update if required
-		log.Info().Msg("root user already exists")
-
-		// generate a hash of the root password
-		pwdHash, err := bcrypt.GenerateFromPassword(
-			[]byte(rootPassword),
-			bcrypt.DefaultCost,
-		)
-		if err != nil {
-			log.Fatal().Err(err).Msg("error hashing password")
-		}
-
-		// set pwd and id on root user entity
-		rootUser.Password = pwdHash
-		rootUser.ID = retrieveRootUserResponse.User.ID
-		rootUser.Registered = true
-
-		// check if update required
-		if rootUser.Equal(retrieveRootUserResponse.User) {
-			log.Info().Msg("\t--> no changes")
-			return
-		}
-		log.Info().Msg("\t--> changes made")
-		if _, err := userAdmin.UpdateUser(
-			user.UpdateUserRequest{User: rootUser},
-		); err != nil {
-			log.Fatal().Err(err).Msg("error updating root user")
-		}
-
-	default:
+	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
 		log.Fatal().Err(err).Msg("error retrieving root user")
+	}
+
+	// user already exists - update if required
+	log.Info().Msg("root user already exists")
+
+	// set id and registered on root user entity
+	rootUser.ID = retrieveRootUserResponse.User.ID
+	rootUser.Registered = true
+
+	// check the root user's password to see if it should be updated
+	checkUsersPasswordResponse, err := userAdmin.CheckUserPassword(
+		user.CheckUserPasswordRequest{
+			UserID:   retrieveRootUserResponse.User.ID,
+			Password: rootPassword,
+		},
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("error checking user's passwords")
+	}
+	if checkUsersPasswordResponse.Correct {
+		log.Info().Msg("\t--> password already correct")
+	} else {
+		log.Info().Msg("\t--> set password")
+		if _, err := userAdmin.SetUserPassword(
+			user.SetUserPasswordRequest{
+				UserID:   rootUser.ID,
+				Password: rootPassword,
+			},
+		); err != nil {
+			log.Fatal().Err(err).Msg("error setting root user's password")
+		}
+	}
+
+	// check if any updates are required on the root user
+	if rootUser.Equal(retrieveRootUserResponse.User) {
+		log.Info().Msg("\t--> no changes")
+		return
+	}
+	log.Info().Msg("\t--> changes made")
+	if _, err := userAdmin.UpdateUser(
+		user.UpdateUserRequest{User: rootUser},
+	); err != nil {
+		log.Fatal().Err(err).Msg("error updating root user")
 	}
 }

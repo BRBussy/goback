@@ -5,6 +5,7 @@ type Admin interface {
 	UpdateUser(UpdateUserRequest) (*UpdateUserResponse, error)
 	RegisterUser(RegisterUserRequest) (*RegisterUserResponse, error)
 	SetUserPassword(SetUserPasswordRequest) (*SetUserPasswordResponse, error)
+	CheckUserPassword(CheckUserPasswordRequest) (*CheckUserPasswordResponse, error)
 }
 
 const AdminServiceProviderName = "User-Admin"
@@ -41,4 +42,13 @@ type SetUserPasswordRequest struct {
 }
 
 type SetUserPasswordResponse struct {
+}
+
+type CheckUserPasswordRequest struct {
+	UserID   string `validate:"required"`
+	Password string `validate:"required"`
+}
+
+type CheckUserPasswordResponse struct {
+	Correct bool
 }

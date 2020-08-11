@@ -30,7 +30,7 @@ func NewBasicAdmin(
 	}
 }
 
-func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, error) {
+func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, error) {
 	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
@@ -55,7 +55,7 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 				role.RetrieveRequest{
 					Filter: filter.NewIDFilter(roleID),
 				},
-			); errors.Is(err, &mongo.ErrNotFound{}) {
+			); errors.Is(err, mongo.NewErrNotFound()) {
 				reasonsInvalid = append(
 					reasonsInvalid,
 					fmt.Sprintf("role with ID %s does not exist", roleID),
@@ -90,7 +90,7 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 				reasonsInvalid,
 				"email already in use",
 			)
-		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
+		} else if !errors.Is(err, mongo.NewErrNotFound()) {
 			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
@@ -119,7 +119,7 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 				reasonsInvalid,
 				"username already in use",
 			)
-		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
+		} else if !errors.Is(err, mongo.NewErrNotFound()) {
 			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
@@ -144,7 +144,7 @@ func (b BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse, 
 	return &AddNewUserResponse{User: request.User}, nil
 }
 
-func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, error) {
+func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, error) {
 	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
@@ -156,13 +156,16 @@ func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, 
 			Filter: filter.NewIDFilter(request.User.ID),
 		},
 	)
-	if errors.Is(err, &mongo.ErrNotFound{}) {
+	if errors.Is(err, mongo.NewErrNotFound()) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
 		log.Error().Err(err).Msg("error retrieving user")
 		return nil, exception.NewErrUnexpected(err)
 	}
+
+	// password needs to be explicitly set
+	request.User.Password = retrieveUserResponse.User.Password
 
 	// confirm that changes were actually made
 	if retrieveUserResponse.User.Equal(request.User) {
@@ -188,7 +191,7 @@ func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, 
 				reasonsInvalid,
 				"email already in use",
 			)
-		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
+		} else if !errors.Is(err, mongo.NewErrNotFound()) {
 			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
@@ -202,7 +205,7 @@ func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, 
 			role.RetrieveRequest{
 				Filter: filter.NewIDFilter(roleID),
 			},
-		); errors.Is(err, &mongo.ErrNotFound{}) {
+		); errors.Is(err, mongo.NewErrNotFound()) {
 			reasonsInvalid = append(
 				reasonsInvalid,
 				fmt.Sprintf("role with ID %s is does not exist", roleID),
@@ -228,7 +231,7 @@ func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, 
 	return &UpdateUserResponse{}, nil
 }
 
-func (b BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserResponse, error) {
+func (b *BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserResponse, error) {
 	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
@@ -240,7 +243,7 @@ func (b BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserResp
 			Filter: filter.NewIDFilter(request.UserID),
 		},
 	)
-	if errors.Is(err, &mongo.ErrNotFound{}) {
+	if errors.Is(err, mongo.NewErrNotFound()) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
@@ -270,7 +273,7 @@ func (b BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserResp
 	return &RegisterUserResponse{}, nil
 }
 
-func (b BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPasswordResponse, error) {
+func (b *BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPasswordResponse, error) {
 	if err := b.requestValidator.Validate(request); err != nil {
 		log.Error().Err(err)
 		return nil, err
@@ -282,7 +285,7 @@ func (b BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPas
 			Filter: filter.NewIDFilter(request.UserID),
 		},
 	)
-	if errors.Is(err, &mongo.ErrNotFound{}) {
+	if errors.Is(err, mongo.NewErrNotFound()) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
@@ -311,4 +314,38 @@ func (b BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPas
 	}
 
 	return &SetUserPasswordResponse{}, nil
+}
+
+func (b *BasicAdmin) CheckUserPassword(request CheckUserPasswordRequest) (*CheckUserPasswordResponse, error) {
+	if err := b.requestValidator.Validate(request); err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	// try and retrieve the user whose password is to be checked
+	retrieveUserResponse, err := b.userStore.Retrieve(
+		RetrieveRequest{
+			Filter: filter.NewIDFilter(request.UserID),
+		},
+	)
+	if errors.Is(err, mongo.NewErrNotFound()) {
+		return nil, NewErrUserDoesNotExist()
+	} else if err != nil {
+		// errors other than not "NotFound" are unexpected
+		log.Error().Err(err).Msg("error retrieving user")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// check password
+	if err := bcrypt.CompareHashAndPassword(
+		retrieveUserResponse.User.Password,
+		[]byte(request.Password),
+	); errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		return &CheckUserPasswordResponse{Correct: false}, nil
+	} else if err != nil {
+		log.Error().Err(err).Msg("error checking password against hash")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	return &CheckUserPasswordResponse{Correct: true}, nil
 }

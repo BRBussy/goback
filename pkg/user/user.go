@@ -1,7 +1,5 @@
 package user
 
-import "bytes"
-
 type User struct {
 	ID         string   `json:"id" bson:"id"`
 	Username   string   `json:"username" bson:"username"`
@@ -11,6 +9,7 @@ type User struct {
 	Password   []byte   `json:"-" bson:"password"`
 }
 
+// Equal compares 2 users - excluding passwords
 func (u User) Equal(u2 User) bool {
 	if u.ID != u2.ID {
 		return false
@@ -42,10 +41,6 @@ func (u User) Equal(u2 User) bool {
 			return false
 		}
 		uRoleIDCount[roleID]--
-	}
-
-	if bytes.Compare(u.Password, u2.Password) != 0 {
-		return false
 	}
 
 	return true

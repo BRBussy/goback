@@ -54,7 +54,7 @@ func RoleSync(
 				Filter: filter.NewNameFilter(roleToSync.Name),
 			},
 		)
-		if errors.Is(err, &mongo.ErrNotFound{}) {
+		if errors.Is(err, mongo.NewErrNotFound()) {
 			// role does not exist yet - create it
 			log.Info().Msg("\trole does not exist --> create it")
 			if _, err := roleAdmin.AddNewRole(

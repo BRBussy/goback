@@ -46,7 +46,7 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 		},
 	)
 	if err != nil {
-		if errors.Is(err, &mongo.ErrNotFound{}) {
+		if errors.Is(err, mongo.NewErrNotFound()) {
 			log.Warn().Msg("attempted login from non-existent user")
 		} else {
 			log.Error().Err(err).Msg("error retrieving user for login")
