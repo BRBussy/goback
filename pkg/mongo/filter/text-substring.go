@@ -1,6 +1,9 @@
 package filter
 
-import "go.mongodb.org/mongo-driver/bson"
+import (
+	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+)
 
 type TextSubstring struct {
 	Field string `json:"field"`
@@ -27,7 +30,10 @@ func (n *TextSubstring) ToOrderedBSON() bson.D {
 	return bson.D{
 		{
 			n.Field,
-			n.Text,
+			bson.M{
+				"$regex":   fmt.Sprintf(".*%s.*", n.Text),
+				"$options": "i",
+			},
 		},
 	}
 }
