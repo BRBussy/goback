@@ -13,7 +13,7 @@ type Store interface {
 	List(ListRequest) (*ListResponse, error)
 }
 
-const StoreServiceProviderName = "UserStore"
+const StoreServiceProviderName = "User-Store"
 
 const CreateService = StoreServiceProviderName + ".Create"
 const RetrieveService = StoreServiceProviderName + ".Retrieve"
