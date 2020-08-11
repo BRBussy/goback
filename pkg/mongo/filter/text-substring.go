@@ -10,7 +10,7 @@ type TextSubstring struct {
 	Text  string `json:"text"`
 }
 
-const TextSubstringFilterType Type = "Text"
+const TextSubstringFilterType Type = "TextSubstring"
 
 func (n *TextSubstring) Type() Type {
 	return TextSubstringFilterType
