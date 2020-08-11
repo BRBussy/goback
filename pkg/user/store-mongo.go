@@ -81,7 +81,13 @@ func (m MongoStore) Update(request UpdateRequest) (*UpdateResponse, error) {
 	}
 
 	// try and update the user in the collection
-	if err := m.collection.UpdateOne(request.User, filter.NewIDFilter(request.User.ID)); err != nil {
+	if err := m.collection.UpdateOne(
+		request.User,
+		filter.NewTextExactFilter(
+			"id",
+			request.User.ID,
+		),
+	); err != nil {
 		// failure here is an unexpected error
 		log.Error().Err(err).Msg("error updating user")
 		return nil, exception.NewErrUnexpected(err)

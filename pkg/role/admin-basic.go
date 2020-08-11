@@ -38,7 +38,8 @@ func (b BasicAdmin) AddNewRole(request AddNewRoleRequest) (*AddNewRoleResponse, 
 	// try and retrieve the role by name to check if it already exists
 	if _, err := b.roleStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewNameFilter(
+			Filter: filter.NewTextExactFilter(
+				"name",
 				request.Role.Name,
 			),
 		},
@@ -77,7 +78,10 @@ func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, 
 	// try and retrieve the role that is to be updated
 	retrieveRoleResponse, err := b.roleStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewIDFilter(request.Role.ID),
+			Filter: filter.NewTextExactFilter(
+				"id",
+				request.Role.ID,
+			),
 		},
 	)
 	if errors.Is(err, mongo.NewErrNotFound()) {
@@ -98,7 +102,8 @@ func (b BasicAdmin) UpdateRole(request UpdateRoleRequest) (*UpdateRoleResponse, 
 	if request.Role.Name != retrieveRoleResponse.Role.Name {
 		if _, err := b.roleStore.Retrieve(
 			RetrieveRequest{
-				Filter: filter.NewNameFilter(
+				Filter: filter.NewTextExactFilter(
+					"name",
 					request.Role.Name,
 				),
 			},

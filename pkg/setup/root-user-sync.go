@@ -28,7 +28,7 @@ func RootUserSync(
 	// search for all of the root user roles
 	listRolesResponse, err := roleStore.List(
 		role.ListRequest{
-			Filter: filter.NewExactTextListFilter(
+			Filter: filter.NewTextExactListFilter(
 				"name",
 				rootUserRoleNames,
 			),
@@ -52,7 +52,10 @@ func RootUserSync(
 	// try and retrieve the root user by username
 	retrieveRootUserResponse, err := userStore.Retrieve(
 		user.RetrieveRequest{
-			Filter: filter.NewUsernameFilter(rootUser.Username),
+			Filter: filter.NewTextExactFilter(
+				"username",
+				rootUser.Username,
+			),
 		},
 	)
 	if errors.Is(err, mongo.NewErrNotFound()) {

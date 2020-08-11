@@ -31,15 +31,22 @@ func (s *SerializedFilter) UnmarshalJSON(bytes []byte) error {
 	}
 
 	switch t.Type {
-	case EmailFilterType:
-		f := new(Email)
+	case TextExactFilterType:
+		f := new(TextExact)
 		if err := json.Unmarshal(bytes, f); err != nil {
 			return NewErrJSONUnmarshallError(err)
 		}
 		s.Filter = f
 
-	case IDFilterType:
-		f := new(ID)
+	case TextExactListFilterType:
+		f := new(TextExactListFilter)
+		if err := json.Unmarshal(bytes, f); err != nil {
+			return NewErrJSONUnmarshallError(err)
+		}
+		s.Filter = f
+
+	case TextSubstringFilterType:
+		f := new(TextSubstring)
 		if err := json.Unmarshal(bytes, f); err != nil {
 			return NewErrJSONUnmarshallError(err)
 		}

@@ -51,7 +51,10 @@ func RoleSync(
 		// try and retrieve the role
 		retrieveRootRoleResponse, err := roleStore.Retrieve(
 			role.RetrieveRequest{
-				Filter: filter.NewNameFilter(roleToSync.Name),
+				Filter: filter.NewTextExactFilter(
+					"name",
+					roleToSync.Name,
+				),
 			},
 		)
 		if errors.Is(err, mongo.NewErrNotFound()) {

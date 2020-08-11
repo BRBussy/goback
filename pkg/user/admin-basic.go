@@ -53,7 +53,10 @@ func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse,
 		for _, roleID := range request.User.RoleIDs {
 			if _, err := b.roleStore.Retrieve(
 				role.RetrieveRequest{
-					Filter: filter.NewIDFilter(roleID),
+					Filter: filter.NewTextExactFilter(
+						"id",
+						roleID,
+					),
 				},
 			); errors.Is(err, mongo.NewErrNotFound()) {
 				reasonsInvalid = append(
@@ -79,7 +82,8 @@ func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse,
 		// to check if the is already in use
 		if _, err := b.userStore.Retrieve(
 			RetrieveRequest{
-				Filter: filter.NewEmailFilter(
+				Filter: filter.NewTextExactFilter(
+					"email",
 					request.User.Email,
 				),
 			},
@@ -108,7 +112,8 @@ func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse,
 		// to check if the is already in use
 		if _, err := b.userStore.Retrieve(
 			RetrieveRequest{
-				Filter: filter.NewUsernameFilter(
+				Filter: filter.NewTextExactFilter(
+					"username",
 					request.User.Username,
 				),
 			},
@@ -153,7 +158,10 @@ func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse,
 	// try and retrieve the user that is to be updated
 	retrieveUserResponse, err := b.userStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewIDFilter(request.User.ID),
+			Filter: filter.NewTextExactFilter(
+				"id",
+				request.User.ID,
+			),
 		},
 	)
 	if errors.Is(err, mongo.NewErrNotFound()) {
@@ -180,7 +188,8 @@ func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse,
 	if request.User.Email != retrieveUserResponse.User.Email {
 		if _, err := b.userStore.Retrieve(
 			RetrieveRequest{
-				Filter: filter.NewEmailFilter(
+				Filter: filter.NewTextExactFilter(
+					"email",
 					request.User.Email,
 				),
 			},
@@ -203,7 +212,10 @@ func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse,
 	for _, roleID := range request.User.RoleIDs {
 		if _, err := b.roleStore.Retrieve(
 			role.RetrieveRequest{
-				Filter: filter.NewIDFilter(roleID),
+				Filter: filter.NewTextExactFilter(
+					"id",
+					roleID,
+				),
 			},
 		); errors.Is(err, mongo.NewErrNotFound()) {
 			reasonsInvalid = append(
@@ -240,7 +252,10 @@ func (b *BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserRes
 	// try and retrieve the user that is to be registered
 	retrieveUserResponse, err := b.userStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewIDFilter(request.UserID),
+			Filter: filter.NewTextExactFilter(
+				"id",
+				request.UserID,
+			),
 		},
 	)
 	if errors.Is(err, mongo.NewErrNotFound()) {
@@ -282,7 +297,10 @@ func (b *BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPa
 	// try and retrieve the user that is to be registered
 	retrieveUserResponse, err := b.userStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewIDFilter(request.UserID),
+			Filter: filter.NewTextExactFilter(
+				"id",
+				request.UserID,
+			),
 		},
 	)
 	if errors.Is(err, mongo.NewErrNotFound()) {
@@ -325,7 +343,10 @@ func (b *BasicAdmin) CheckUserPassword(request CheckUserPasswordRequest) (*Check
 	// try and retrieve the user whose password is to be checked
 	retrieveUserResponse, err := b.userStore.Retrieve(
 		RetrieveRequest{
-			Filter: filter.NewIDFilter(request.UserID),
+			Filter: filter.NewTextExactFilter(
+				"id",
+				request.UserID,
+			),
 		},
 	)
 	if errors.Is(err, mongo.NewErrNotFound()) {

@@ -81,7 +81,13 @@ func (m MongoStore) Update(request UpdateRequest) (*UpdateResponse, error) {
 	}
 
 	// try and update the role in the collection
-	if err := m.collection.UpdateOne(request.Role, filter.NewIDFilter(request.Role.ID)); err != nil {
+	if err := m.collection.UpdateOne(
+		request.Role,
+		filter.NewTextExactFilter(
+			"id",
+			request.Role.ID,
+		),
+	); err != nil {
 		// failure here is an unexpected error
 		log.Error().Err(err).Msg("error updating role")
 		return nil, exception.NewErrUnexpected(err)
