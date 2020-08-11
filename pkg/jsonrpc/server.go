@@ -73,7 +73,6 @@ func preFlightAndCORSHandler(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Methods", "POST")
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Origin")
-		w.WriteHeader(http.StatusOK)
 		if r.Method == http.MethodPost {
 			next.ServeHTTP(w, r)
 		}

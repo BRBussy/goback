@@ -94,7 +94,10 @@ func main() {
 	//
 	// instantiate middleware
 	//
-	authenticationMiddleware := authentication.NewMiddleware(basicAuthenticator)
+	authenticationMiddleware := authentication.NewMiddleware(
+		basicAuthenticator,
+		jwtBasicValidator,
+	)
 	authorisationMiddleware := authorisation.NewMiddleware(basicAuthoriser)
 
 	// create JSON-RPC HTTP server
