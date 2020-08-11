@@ -56,14 +56,14 @@ func (b *BasicGenerator) Generate(request GenerateRequest) (*GenerateResponse, e
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("error marshalling claims")
-		return nil, exception.NewErrUnexpected(err)
+		return nil, NewErrJSONMarshalError(err)
 	}
 
 	// sign the jwt payload
 	signedJWTObject, err := b.tokenSigner.Sign(jwtPayload)
 	if err != nil {
 		log.Error().Err(err).Msg("could not sign payload")
-		return nil, exception.NewErrUnexpected(err)
+		return nil, NewErrSigningError(err)
 	}
 
 	// serialize the signed JWT Object
