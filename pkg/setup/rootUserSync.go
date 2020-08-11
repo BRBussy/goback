@@ -56,9 +56,10 @@ func RootUserSync(
 	)
 	switch err.(type) {
 	case *mongo.ErrNotFound:
+		// user does not exist yet - create and register it
+
 		log.Info().Msg("root user does not exist --> create it")
 		log.Info().Msg("\t--> create it")
-		// user does not exist yet - create it
 		addNewUserResponse, err := userAdmin.AddNewUser(
 			user.AddNewUserRequest{User: rootUser},
 		)
@@ -66,8 +67,17 @@ func RootUserSync(
 			log.Fatal().Err(err).Msg("error adding root user")
 		}
 		log.Info().Msg("\t--> register it")
+		if _, err := userAdmin.RegisterUser(
+			user.RegisterUserRequest{
+				UserID:   addNewUserResponse.User.ID,
+				Password: rootPassword,
+			},
+		); err != nil {
+			log.Fatal().Err(err).Msg("error registering user")
+		}
 
 	case nil:
+		// user already exists - update if required
 
 	default:
 		// errors other than not "NotFound" are unexpected
