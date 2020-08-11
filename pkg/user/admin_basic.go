@@ -226,3 +226,49 @@ func (b BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse, 
 
 	return &UpdateUserResponse{}, nil
 }
+
+func (b BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserResponse, error) {
+	if err := b.requestValidator.Validate(request); err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	// try and retrieve the user that is to be registered
+	retrieveUserResponse, err := b.userStore.Retrieve(
+		RetrieveRequest{
+			Filter: filter.NewIDFilter(request.UserID),
+		},
+	)
+	if errors.Is(err, &mongo.ErrNotFound{}) {
+		return nil, NewErrUserDoesNotExist()
+	} else if err != nil {
+		// errors other than not "NotFound" are unexpected
+		log.Error().Err(err).Msg("error retrieving user")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// set the user's password
+	if _, err := b.SetUserPassword(
+		SetUserPasswordRequest(request),
+	); err != nil {
+		log.Error().Err(err).Msg("error setting user's password")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// set the user's registered flag
+	retrieveUserResponse.User.Registered = true
+
+	// update the user
+	if _, err := b.UpdateUser(
+		UpdateUserRequest{User: retrieveUserResponse.User},
+	); err != nil {
+		log.Error().Err(err).Msg("error updating user")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	return &RegisterUserResponse{}, nil
+}
+
+func (b BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPasswordResponse, error) {
+	panic("implement me")
+}

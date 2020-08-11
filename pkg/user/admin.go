@@ -3,6 +3,8 @@ package user
 type Admin interface {
 	AddNewUser(AddNewUserRequest) (*AddNewUserResponse, error)
 	UpdateUser(UpdateUserRequest) (*UpdateUserResponse, error)
+	RegisterUser(RegisterUserRequest) (*RegisterUserResponse, error)
+	SetUserPassword(SetUserPasswordRequest) (*SetUserPasswordResponse, error)
 }
 
 const AdminServiceProviderName = "User-Admin"
@@ -23,4 +25,20 @@ type UpdateUserRequest struct {
 }
 
 type UpdateUserResponse struct {
+}
+
+type RegisterUserRequest struct {
+	UserID   string `validate:"required"`
+	Password string `validate:"required"`
+}
+
+type RegisterUserResponse struct {
+}
+
+type SetUserPasswordRequest struct {
+	UserID   string `validate:"required"`
+	Password string `validate:"required"`
+}
+
+type SetUserPasswordResponse struct {
 }
