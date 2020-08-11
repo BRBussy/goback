@@ -25,7 +25,7 @@ func ParseRSAPrivateKeyFromString(rsaPrivateKeyString string) (*rsa.PrivateKey, 
 
 // GenerateRSAPrivateKey generates an returns an rsa.PrivateKey
 func GenerateRSAPrivateKey() (*rsa.PrivateKey, error) {
-	pvtKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	pvtKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, NewErrGenerationError(err)
 	}

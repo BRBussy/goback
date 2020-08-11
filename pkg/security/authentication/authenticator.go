@@ -7,8 +7,8 @@ type Authenticator interface {
 const AuthenticatorServiceProviderName = "Authenticator"
 
 type LoginRequest struct {
-	EmailAddress string `validate:"required"`
-	Password     string `validate:"required"`
+	Email    string `validate:"required"`
+	Password string `validate:"required"`
 }
 
 type LoginResponse struct {

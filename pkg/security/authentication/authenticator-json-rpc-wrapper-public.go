@@ -17,8 +17,8 @@ func (a AuthenticatorAuthorisedJSONRPCWrapper) ServiceProviderName() string {
 }
 
 type LoginJSONRPCRequest struct {
-	EmailAddress string `json:"user"`
-	Password     string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type LoginJSONRPCResponse struct {

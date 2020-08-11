@@ -42,7 +42,7 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 	// try and retrieve the user by the given email address
 	retrieveUserResponse, err := b.userStore.Retrieve(
 		user.RetrieveRequest{
-			Filter: filter.NewEmailFilter(request.EmailAddress),
+			Filter: filter.NewEmailFilter(request.Email),
 		},
 	)
 	if err != nil {
