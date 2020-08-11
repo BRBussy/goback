@@ -6,6 +6,7 @@ import (
 	"github.com/BRBussy/goback/pkg/role"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var rootUser = user.User{
@@ -58,7 +59,7 @@ func RootUserSync(
 	case *mongo.ErrNotFound:
 		// user does not exist yet - create and register it
 
-		log.Info().Msg("root user does not exist --> create it")
+		log.Info().Msg("root user does not exist")
 		log.Info().Msg("\t--> create it")
 		addNewUserResponse, err := userAdmin.AddNewUser(
 			user.AddNewUserRequest{User: rootUser},
@@ -78,6 +79,32 @@ func RootUserSync(
 
 	case nil:
 		// user already exists - update if required
+		log.Info().Msg("root user already exists")
+
+		// generate a hash of the root password
+		pwdHash, err := bcrypt.GenerateFromPassword(
+			[]byte(rootPassword),
+			bcrypt.DefaultCost,
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("error hashing password")
+		}
+
+		// set pwd and id on root user entity
+		rootUser.Password = pwdHash
+		rootUser.ID = retrieveRootUserResponse.User.ID
+
+		// check if update required
+		if rootUser.Equal(retrieveRootUserResponse.User) {
+			log.Info().Msg("\t--> no changes")
+			return
+		}
+		log.Info().Msg("\t--> changes made")
+		if _, err := userAdmin.UpdateUser(
+			user.UpdateUserRequest{User: rootUser},
+		); err != nil {
+			log.Fatal().Err(err).Msg("error updating root user")
+		}
 
 	default:
 		// errors other than not "NotFound" are unexpected
