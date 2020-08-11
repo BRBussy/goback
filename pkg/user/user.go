@@ -1,5 +1,7 @@
 package user
 
+import "bytes"
+
 type User struct {
 	ID         string   `json:"id" bson:"id"`
 	Username   string   `json:"username" bson:"username"`
@@ -42,19 +44,8 @@ func (u User) Equal(u2 User) bool {
 		uRoleIDCount[roleID]--
 	}
 
-	// map to store occurrences in u.Password
-	uPasswordByteCount := make(map[byte]int)
-	for _, b := range u.Password {
-		uPasswordByteCount[b]++
-	}
-
-	// check u2
-	for _, b := range u2.Password {
-		count, found := uPasswordByteCount[b]
-		if !found || count == 0 {
-			return false
-		}
-		uPasswordByteCount[b]--
+	if bytes.Compare(u.Password, u2.Password) != 0 {
+		return false
 	}
 
 	return true

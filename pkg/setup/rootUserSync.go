@@ -93,6 +93,7 @@ func RootUserSync(
 		// set pwd and id on root user entity
 		rootUser.Password = pwdHash
 		rootUser.ID = retrieveRootUserResponse.User.ID
+		rootUser.Registered = true
 
 		// check if update required
 		if rootUser.Equal(retrieveRootUserResponse.User) {
