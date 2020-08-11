@@ -4,6 +4,8 @@ type Authenticator interface {
 	Login(LoginRequest) (*LoginResponse, error)
 }
 
+const AuthenticatorServiceProviderName = "Authenticator"
+
 type LoginRequest struct {
 	EmailAddress string `validate:"required"`
 	Password     string `validate:"required"`
