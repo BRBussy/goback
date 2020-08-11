@@ -106,10 +106,12 @@ func main() {
 			// Public API Server
 			//
 			{
-				Name:             "Public",
-				Path:             "/api/public",
-				Middleware:       []mux.MiddlewareFunc{},
-				ServiceProviders: []jsonrpc.ServiceProvider{},
+				Name:       "Public",
+				Path:       "/api/public",
+				Middleware: []mux.MiddlewareFunc{},
+				ServiceProviders: []jsonrpc.ServiceProvider{
+					authentication.NewAuthenticatorAuthorisedJSONRPCWrapper(basicAuthenticator),
+				},
 			},
 
 			//
@@ -121,9 +123,7 @@ func main() {
 				Middleware: []mux.MiddlewareFunc{
 					authenticationMiddleware.Apply,
 				},
-				ServiceProviders: []jsonrpc.ServiceProvider{
-					authentication.NewAuthenticatorAuthorisedJSONRPCWrapper(basicAuthenticator),
-				},
+				ServiceProviders: []jsonrpc.ServiceProvider{},
 			},
 
 			//
