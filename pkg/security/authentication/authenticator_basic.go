@@ -17,16 +17,19 @@ type BasicAuthenticator struct {
 	requestValidator *validate.RequestValidator
 	userStore        user.Store
 	jwtGenerator     jwt.Generator
+	jwtValidator     jwt.Validator
 }
 
 func NewBasicAuthenticator(
 	userStore user.Store,
 	jwtGenerator jwt.Generator,
+	jwtValidator jwt.Validator,
 ) *BasicAuthenticator {
 	return &BasicAuthenticator{
 		requestValidator: validate.NewRequestValidator(),
 		userStore:        userStore,
 		jwtGenerator:     jwtGenerator,
+		jwtValidator:     jwtValidator,
 	}
 }
 

@@ -60,6 +60,7 @@ func main() {
 	)
 
 	jwtBasicGenerator := jwt.NewBasicGenerator()
+	jwtBasicValidator := jwt.NewBasicValidator()
 
 	basicAuthoriser := authorisation.NewBasicAuthoriser(
 		userMongoStore,
@@ -69,6 +70,7 @@ func main() {
 	basicAuthenticator := authentication.NewBasicAuthenticator(
 		userMongoStore,
 		jwtBasicGenerator,
+		jwtBasicValidator,
 	)
 
 	//
