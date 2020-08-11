@@ -117,10 +117,10 @@ func RootUserSync(
 
 	// check if any updates are required on the root user
 	if rootUser.Equal(retrieveRootUserResponse.User) {
-		log.Info().Msg("\t--> no changes")
+		log.Info().Msg("\t--> no other changes to root user")
 		return
 	}
-	log.Info().Msg("\t--> changes made")
+	log.Info().Msg("\t--> update root user")
 	if _, err := userAdmin.UpdateUser(
 		user.UpdateUserRequest{User: rootUser},
 	); err != nil {

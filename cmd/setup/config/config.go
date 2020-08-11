@@ -8,7 +8,7 @@ import (
 func init() {
 	viper.SetDefault("MongoDBName", "goback")
 	viper.SetDefault("MongoDBHosts", []string{"localhost:27017"})
-	viper.SetDefault("RootUserPassword", "123")
+	viper.SetDefault("RootUserPassword", "1234")
 }
 
 // Config holds configuration information for the setup
