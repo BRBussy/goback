@@ -10,6 +10,7 @@ import (
 	"github.com/BRBussy/goback/pkg/validate"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type BasicAdmin struct {
@@ -270,5 +271,44 @@ func (b BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserResp
 }
 
 func (b BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPasswordResponse, error) {
-	panic("implement me")
+	if err := b.requestValidator.Validate(request); err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	// try and retrieve the user that is to be registered
+	retrieveUserResponse, err := b.userStore.Retrieve(
+		RetrieveRequest{
+			Filter: filter.NewIDFilter(request.UserID),
+		},
+	)
+	if errors.Is(err, &mongo.ErrNotFound{}) {
+		return nil, NewErrUserDoesNotExist()
+	} else if err != nil {
+		// errors other than not "NotFound" are unexpected
+		log.Error().Err(err).Msg("error retrieving user")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// generate a hash of the given password
+	pwdHash, err := bcrypt.GenerateFromPassword(
+		[]byte(request.Password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		log.Error().Err(err).Msg("error hashing password")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// update the password hash on the user
+	retrieveUserResponse.User.Password = pwdHash
+
+	if _, err := b.userStore.Update(
+		UpdateRequest{User: retrieveUserResponse.User},
+	); err != nil {
+		log.Error().Err(err).Msg("error updating user")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	return &SetUserPasswordResponse{}, nil
 }
