@@ -10,14 +10,16 @@ import (
 )
 
 type BasicValidator struct {
-	rsaKeyPair       *rsa.PrivateKey
 	requestValidator *validate.RequestValidator
+	rsaKeyPair       *rsa.PrivateKey
 }
 
 func NewBasicValidator(
 	rsaKeyPair *rsa.PrivateKey,
 ) *BasicValidator {
-	return &BasicValidator{}
+	return &BasicValidator{
+		rsaKeyPair: rsaKeyPair,
+	}
 }
 
 func (b *BasicValidator) Validate(request ValidateRequest) (*ValidateResponse, error) {

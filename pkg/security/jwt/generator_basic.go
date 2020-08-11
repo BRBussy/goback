@@ -1,9 +1,9 @@
 package jwt
 
 import (
+	"crypto/rsa"
 	"encoding/json"
 	"github.com/BRBussy/goback/pkg/exception"
-	"github.com/BRBussy/goback/pkg/key"
 	"github.com/BRBussy/goback/pkg/security/claims"
 	"github.com/BRBussy/goback/pkg/validate"
 	"github.com/rs/zerolog/log"
@@ -16,14 +16,8 @@ type BasicGenerator struct {
 }
 
 func NewBasicGenerator(
-	privateKeyString string,
+	rsaKeyPair *rsa.PrivateKey,
 ) *BasicGenerator {
-	// fetch or generate RSA key pair
-	rsaKeyPair, err := key.ParseRSAPrivateKeyFromString(privateKeyString)
-	if err != nil {
-		log.Fatal().Err(err).Msg("error parsing private key")
-	}
-
 	// create a new signer with the given private key.
 	joseSigner, err := jose.NewSigner(
 		jose.SigningKey{
