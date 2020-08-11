@@ -11,6 +11,7 @@ import (
 var rootUser = user.User{
 	Username: "root",
 	Email:    "root@example.com",
+	RoleIDs:  make([]string, 0),
 }
 
 var rootUserRoleNames = []string{
@@ -30,7 +31,6 @@ func RootUserSync(
 				"name",
 				rootUserRoleNames,
 			),
-			Query: mongo.Query{},
 		},
 	)
 	if err != nil {
@@ -38,5 +38,39 @@ func RootUserSync(
 	}
 	if len(listRolesResponse.Records) != len(rootUserRoleNames) {
 		log.Fatal().Msg("incorrect number of roles listed")
+	}
+
+	// populate all of the roleIDs on the root user
+	for _, r := range listRolesResponse.Records {
+		rootUser.RoleIDs = append(
+			rootUser.RoleIDs,
+			r.ID,
+		)
+	}
+
+	// try and retrieve the root user by username
+	retrieveRootUserResponse, err := userStore.Retrieve(
+		user.RetrieveRequest{
+			Filter: filter.NewUsernameFilter(rootUser.Username),
+		},
+	)
+	switch err.(type) {
+	case *mongo.ErrNotFound:
+		log.Info().Msg("root user does not exist --> create it")
+		log.Info().Msg("\t--> create it")
+		// user does not exist yet - create it
+		addNewUserResponse, err := userAdmin.AddNewUser(
+			user.AddNewUserRequest{User: rootUser},
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("error adding root user")
+		}
+		log.Info().Msg("\t--> register it")
+
+	case nil:
+
+	default:
+		// errors other than not "NotFound" are unexpected
+		log.Fatal().Err(err).Msg("error retrieving root user")
 	}
 }
