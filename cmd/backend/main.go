@@ -22,6 +22,8 @@ import (
 
 var configFileName = flag.String("config-file-name", "config", "specify config file")
 
+// TODO: CORS check! --> get the server to work with the preflight thing
+
 func main() {
 	flag.Parse()
 	logs.Setup()
