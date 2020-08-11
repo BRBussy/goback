@@ -1,9 +1,11 @@
 package main
 
 import (
+	"crypto/rsa"
 	"flag"
 	backendConfig "github.com/BRBussy/goback/cmd/backend/config"
 	"github.com/BRBussy/goback/pkg/jsonrpc"
+	"github.com/BRBussy/goback/pkg/key"
 	"github.com/BRBussy/goback/pkg/logs"
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/role"
@@ -48,6 +50,22 @@ func main() {
 		}
 	}()
 
+	// parse or generate RSA key pair
+	var rsaPrivateKey *rsa.PrivateKey
+	if config.PrivateKeyString == "" {
+		pk, err := key.GenerateRSAPrivateKey()
+		if err != nil {
+			log.Fatal().Err(err).Msg("error generating rsa private key")
+		}
+		rsaPrivateKey = pk
+	} else {
+		pk, err := key.ParseRSAPrivateKeyFromString(config.PrivateKeyString)
+		if err != nil {
+			log.Fatal().Err(err).Msg("error parsing rsa private key")
+		}
+		rsaPrivateKey = pk
+	}
+
 	//
 	// instantiate service providers
 	//
@@ -59,8 +77,8 @@ func main() {
 		roleMongoStore,
 	)
 
-	jwtBasicGenerator := jwt.NewBasicGenerator()
-	jwtBasicValidator := jwt.NewBasicValidator()
+	jwtBasicGenerator := jwt.NewBasicGenerator(rsaPrivateKey)
+	jwtBasicValidator := jwt.NewBasicValidator(rsaPrivateKey)
 
 	basicAuthoriser := authorisation.NewBasicAuthoriser(
 		userMongoStore,

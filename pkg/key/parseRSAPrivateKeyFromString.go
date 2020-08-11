@@ -1,6 +1,7 @@
 package key
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -11,12 +12,22 @@ import (
 func ParseRSAPrivateKeyFromString(rsaPrivateKeyString string) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode([]byte(rsaPrivateKeyString))
 	if block == nil {
-		return nil, ErrNilAfterParsing
+		return nil, NewErrNilKey()
 	}
 
 	pvtKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		return nil, NewErrParsingError(err)
+	}
+
+	return pvtKey, nil
+}
+
+// GenerateRSAPrivateKey generates an returns an rsa.PrivateKey
+func GenerateRSAPrivateKey() (*rsa.PrivateKey, error) {
+	pvtKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		return nil, NewErrGenerationError(err)
 	}
 
 	return pvtKey, nil
