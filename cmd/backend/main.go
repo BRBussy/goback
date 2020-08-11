@@ -121,7 +121,9 @@ func main() {
 				Middleware: []mux.MiddlewareFunc{
 					authenticationMiddleware.Apply,
 				},
-				ServiceProviders: []jsonrpc.ServiceProvider{},
+				ServiceProviders: []jsonrpc.ServiceProvider{
+					authentication.NewAuthenticatorAuthorisedJSONRPCWrapper(basicAuthenticator),
+				},
 			},
 
 			//
