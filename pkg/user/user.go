@@ -16,7 +16,7 @@ func (u User) Equal(u2 User) bool {
 	if u.Username != u2.Username {
 		return false
 	}
-	if u.Email != u2.ID {
+	if u.Email != u2.Email {
 		return false
 	}
 	if u.Registered != u2.Registered {
