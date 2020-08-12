@@ -2,8 +2,6 @@ package jwt
 
 import (
 	"crypto/rsa"
-	"encoding/json"
-	"github.com/BRBussy/goback/pkg/security/claims"
 	"github.com/BRBussy/goback/pkg/validate"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/square/go-jose.v2"
@@ -37,25 +35,13 @@ func (b *BasicValidator) Validate(request ValidateRequest) (*ValidateResponse, e
 
 	// Verify jwt signature and retrieve payload (i.e. json marshalled claims)
 	// Failure indicates jwt was damaged or tampered with
-	jsonClaims, err := jwtObject.Verify(&b.rsaKeyPair.PublicKey)
+	jsonPayload, err := jwtObject.Verify(&b.rsaKeyPair.PublicKey)
 	if err != nil {
 		log.Error().Err(err).Msg("jwt verification failure")
 		return nil, NewErrJWTVerificationFailure(err)
 	}
 
-	// unmarshal claims
-	var userClaims claims.Claims
-	if err := json.Unmarshal(jsonClaims, &userClaims); err != nil {
-		log.Warn().Err(err).Msg("could not unmarshal claims")
-		return nil, NewErrJSONUnmarshalError(err)
-	}
-
-	// check that claims are not expired
-	if userClaims.Expired() {
-		return nil, NewErrJWTExpired()
-	}
-
 	return &ValidateResponse{
-		Claims: userClaims,
+		JSONPayload: jsonPayload,
 	}, nil
 }

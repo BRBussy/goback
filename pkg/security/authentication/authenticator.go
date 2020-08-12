@@ -1,8 +1,10 @@
 package authentication
 
+import "github.com/BRBussy/goback/pkg/security/claims"
+
 type Authenticator interface {
 	Login(LoginRequest) (*LoginResponse, error)
-	ConfirmJWTLogin(ConfirmJWTLoginRequest) (*ConfirmJWTLoginResponse, error)
+	ValidateJWT(ValidateJWTRequest) (*ValidateJWTResponse, error)
 }
 
 const AuthenticatorServiceProviderName = "Authenticator"
@@ -16,9 +18,10 @@ type LoginResponse struct {
 	JWT string
 }
 
-type ConfirmJWTLoginRequest struct {
-	JWT string `validate:""`
+type ValidateJWTRequest struct {
+	JWT string `validate:"required"`
 }
 
-type ConfirmJWTLoginResponse struct {
+type ValidateJWTResponse struct {
+	Claims claims.Claims
 }

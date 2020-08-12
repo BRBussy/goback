@@ -16,22 +16,6 @@ func (e *ErrJSONMarshalError) Unwrap() error {
 	return e.err
 }
 
-type ErrJSONUnmarshalError struct {
-	err error
-}
-
-func NewErrJSONUnmarshalError(err error) *ErrJSONUnmarshalError {
-	return &ErrJSONUnmarshalError{err: err}
-}
-
-func (e *ErrJSONUnmarshalError) Error() string {
-	return "jwt json unmarshal error: " + e.err.Error()
-}
-
-func (e *ErrJSONUnmarshalError) Unwrap() error {
-	return e.err
-}
-
 type ErrSigningError struct {
 	err error
 }
@@ -78,14 +62,4 @@ func (e *ErrJWTVerificationFailure) Error() string {
 
 func (e *ErrJWTVerificationFailure) Unwrap() error {
 	return e.err
-}
-
-type ErrJWTExpired struct{}
-
-func NewErrJWTExpired() *ErrJWTExpired {
-	return &ErrJWTExpired{}
-}
-
-func (e *ErrJWTExpired) Error() string {
-	return "jwt expired"
 }

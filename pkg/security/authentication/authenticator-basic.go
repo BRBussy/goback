@@ -1,7 +1,9 @@
 package authentication
 
 import (
+	"encoding/json"
 	"errors"
+	"github.com/BRBussy/goback/pkg/exception"
 	"github.com/BRBussy/goback/pkg/mongo"
 	"github.com/BRBussy/goback/pkg/mongo/filter"
 	"github.com/BRBussy/goback/pkg/security/claims"
@@ -68,10 +70,10 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 	// generate a login claims JWT
 	generateTokenResponse, err := b.jwtGenerator.Generate(
 		jwt.GenerateRequest{
-			Claims: claims.LoginClaims{
-				UserID:         retrieveUserResponse.User.ID,
-				ExpirationTime: time.Now().Add(24 * time.Hour),
-			},
+			Claims: claims.NewClaims(
+				retrieveUserResponse.User.ID,
+				time.Now().Add(24*time.Hour),
+			),
 		},
 	)
 	if err != nil {
@@ -81,5 +83,36 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 
 	return &LoginResponse{
 		JWT: generateTokenResponse.JWT,
+	}, nil
+}
+
+func (b BasicAuthenticator) ValidateJWT(request ValidateJWTRequest) (*ValidateJWTResponse, error) {
+	if err := b.requestValidator.Validate(request); err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	validateResponse, err := b.jwtValidator.Validate(
+		jwt.ValidateRequest{JWT: request.JWT},
+	)
+	if err != nil {
+		log.Error().Err(err).Msg("error validating jwt")
+		return nil, exception.NewErrUnexpected(err)
+	}
+
+	// unmarshal claims
+	var userClaims claims.Claims
+	if err := json.Unmarshal(validateResponse.JSONPayload, &userClaims); err != nil {
+		log.Warn().Err(err).Msg("could not unmarshal jwt json payload to claims")
+		return nil, NewErrJSONUnmarshalError(err)
+	}
+
+	// check that claims are not expired
+	if userClaims.Expired() {
+		return nil, NewErrJWTExpired()
+	}
+
+	return &ValidateJWTResponse{
+		Claims: userClaims,
 	}, nil
 }

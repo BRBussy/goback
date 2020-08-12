@@ -1,8 +1,8 @@
 package authentication
 
 import (
-	"github.com/BRBussy/goback/pkg/mongo/filter"
-	"github.com/BRBussy/goback/pkg/security/jwt"
+	"context"
+	"encoding/json"
 	"github.com/BRBussy/goback/pkg/user"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -10,18 +10,16 @@ import (
 
 type Middleware struct {
 	authenticator Authenticator
-	jwtValidator  jwt.Validator
 	userStore     user.Store
 }
 
 func NewMiddleware(
 	authenticator Authenticator,
-	jwtValidator jwt.Validator,
 	userStore user.Store,
 ) *Middleware {
 	return &Middleware{
 		authenticator: authenticator,
-		jwtValidator:  jwtValidator,
+		userStore:     userStore,
 	}
 }
 
@@ -38,28 +36,27 @@ func (a *Middleware) Apply(next http.Handler) http.Handler {
 			return
 		}
 
-		// try and validate the contents of the authentication header as a jwt
-		validateResponse, err := a.jwtValidator.Validate(
-			jwt.ValidateRequest{
+		// try and validate the contents of the authentication header
+		validateResponse, err := a.authenticator.ValidateJWT(
+			ValidateJWTRequest{
 				JWT: authenticationHeader,
 			},
 		)
 		if err != nil {
+			log.Warn().Err(err).Msg("jwt validation error")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			log.Warn().Err(err).Msg("unauthorized request")
 			return
 		}
 
-		// use the returned claims to try and retrieve the requesting user
-		retrieveResponse, err := a.userStore.Retrieve(
-			user.RetrieveRequest{
-				Filter: filter.NewTextExactFilter(
-					"id",
-					validateResponse.Claims.Expired(),
-				),
-			},
-		)
+		// marshall claims and put into context
+		marshalledClaims, err := json.Marshal(validateResponse.Claims)
+		if err != nil {
+			log.Warn().Err(err).Msg("error json marshalling claims")
+			http.Error(w, "Unauthorized", http.StatusInternalServerError)
+			return
+		}
 
-		next.ServeHTTP(w, r)
+		// forward http request with claims context
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), "Claims", marshalledClaims)))
 	})
 }

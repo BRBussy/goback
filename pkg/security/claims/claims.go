@@ -12,8 +12,11 @@ type Claims struct {
 func NewClaims(
 	userID string,
 	expirationTime time.Time,
-) *Claims {
-	return &Claims{UserID: userID, ExpirationTime: expirationTime}
+) Claims {
+	return Claims{
+		UserID:         userID,
+		ExpirationTime: expirationTime,
+	}
 }
 
 func (c *Claims) Expired() bool {
