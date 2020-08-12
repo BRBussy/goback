@@ -1,7 +1,9 @@
 package authentication
 
 import (
+	"github.com/BRBussy/goback/pkg/mongo/filter"
 	"github.com/BRBussy/goback/pkg/security/jwt"
+	"github.com/BRBussy/goback/pkg/user"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
@@ -9,17 +11,22 @@ import (
 type Middleware struct {
 	authenticator Authenticator
 	jwtValidator  jwt.Validator
+	userStore     user.Store
 }
 
 func NewMiddleware(
 	authenticator Authenticator,
 	jwtValidator jwt.Validator,
+	userStore user.Store,
 ) *Middleware {
 	return &Middleware{
 		authenticator: authenticator,
 		jwtValidator:  jwtValidator,
 	}
 }
+
+// Talking about context:
+// https://blog.questionable.services/article/map-string-interface/
 
 func (a *Middleware) Apply(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -32,15 +39,26 @@ func (a *Middleware) Apply(next http.Handler) http.Handler {
 		}
 
 		// try and validate the contents of the authentication header as a jwt
-		if _, err := a.jwtValidator.Validate(
+		validateResponse, err := a.jwtValidator.Validate(
 			jwt.ValidateRequest{
 				JWT: authenticationHeader,
 			},
-		); err != nil {
-			log.Warn().Err(err).Msg("error validating authentication header jwt")
+		)
+		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			log.Warn().Err(err).Msg("unauthorized request")
 			return
 		}
+
+		// use the returned claims to try and retrieve the requesting user
+		retrieveResponse, err := a.userStore.Retrieve(
+			user.RetrieveRequest{
+				Filter: filter.NewTextExactFilter(
+					"id",
+					validateResponse.Claims.Expired(),
+				),
+			},
+		)
 
 		next.ServeHTTP(w, r)
 	})

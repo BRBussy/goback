@@ -44,18 +44,18 @@ func (b *BasicValidator) Validate(request ValidateRequest) (*ValidateResponse, e
 	}
 
 	// unmarshal claims
-	var serializedClaims claims.SerializedClaims
-	if err := json.Unmarshal(jsonClaims, &serializedClaims); err != nil {
+	var userClaims claims.Claims
+	if err := json.Unmarshal(jsonClaims, &userClaims); err != nil {
 		log.Warn().Err(err).Msg("could not unmarshal claims")
 		return nil, NewErrJSONUnmarshalError(err)
 	}
 
 	// check that claims are not expired
-	if serializedClaims.Claims.Expired() {
+	if userClaims.Expired() {
 		return nil, NewErrJWTExpired()
 	}
 
 	return &ValidateResponse{
-		Claims: serializedClaims.Claims,
+		Claims: userClaims,
 	}, nil
 }
