@@ -12,7 +12,7 @@ type rpcRequest struct {
 	Method string `json:"method"`
 }
 
-func getRPCMethod(r *http.Request) (string, error) {
+func GetRPCMethod(r *http.Request) (string, error) {
 	// confirm body not nil
 	if r.Body == nil {
 		return "", errors.New("no body")

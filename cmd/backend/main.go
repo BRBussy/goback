@@ -98,9 +98,12 @@ func main() {
 	//
 	authenticationMiddleware := authentication.NewMiddleware(
 		basicAuthenticator,
-		userMongoStore,
 	)
-	authorisationMiddleware := authorisation.NewMiddleware(basicAuthoriser)
+	authorisationMiddleware := authorisation.NewMiddleware(
+		basicAuthoriser,
+		userMongoStore,
+		roleMongoStore,
+	)
 
 	// create JSON-RPC HTTP server
 	jsonRPCHTTPServer := jsonrpc.NewServer(

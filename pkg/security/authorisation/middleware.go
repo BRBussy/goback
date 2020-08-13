@@ -1,6 +1,7 @@
 package authorisation
 
 import (
+	"github.com/BRBussy/goback/pkg/jsonrpc"
 	"github.com/BRBussy/goback/pkg/mongo/filter"
 	"github.com/BRBussy/goback/pkg/role"
 	"github.com/BRBussy/goback/pkg/security/claims"
@@ -37,6 +38,14 @@ func (a *Middleware) Apply(next http.Handler) http.Handler {
 			return
 		}
 
+		// get the rpc method being requested
+		rpcMethod, err := jsonrpc.GetRPCMethod(r)
+		if err != nil {
+			log.Error().Err(err).Msg("unable to get rpc method")
+			http.Error(w, "Unauthorized", http.StatusInternalServerError)
+			return
+		}
+
 		// retrieve the requesting user
 		retrieveUserResponse, err := a.userStore.Retrieve(
 			user.RetrieveRequest{
@@ -67,6 +76,24 @@ func (a *Middleware) Apply(next http.Handler) http.Handler {
 			return
 		}
 
+		// check through all of the permissions of all of the user's roles
+		// to see if they have a permission matching the requested service
+	nextRole:
+		for _, r := range listRolesResponse.Records {
+			for _, perm := range r.Permissions {
+				if perm == rpcMethod {
+					break nextRole
+				}
+			}
+			// if execution reaches here the user does not
+			// have permission to access this service
+			log.Warn().Msg("user does not have permission to access service: " + rpcMethod)
+			http.Error(w, "Unauthorized", http.StatusInternalServerError)
+			return
+		}
+
+		// if execution reaches here they have the required permission
+		// and thus pass the authorisation middleware
 		next.ServeHTTP(w, r)
 	})
 }
