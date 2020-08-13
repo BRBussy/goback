@@ -3,23 +3,19 @@ package authentication
 import (
 	"context"
 	"encoding/json"
-	"github.com/BRBussy/goback/pkg/user"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
 type Middleware struct {
 	authenticator Authenticator
-	userStore     user.Store
 }
 
 func NewMiddleware(
 	authenticator Authenticator,
-	userStore user.Store,
 ) *Middleware {
 	return &Middleware{
 		authenticator: authenticator,
-		userStore:     userStore,
 	}
 }
 
