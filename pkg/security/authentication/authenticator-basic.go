@@ -59,6 +59,12 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 		return nil, NewErrLoginFailed()
 	}
 
+	// confirm that the user is registered
+	if !retrieveUserResponse.User.Registered {
+		log.Warn().Msg("attempted login fom unregistered user")
+		return nil, NewErrLoginFailed()
+	}
+
 	// check password is correct by comparing it with the stored hash
 	if err := bcrypt.CompareHashAndPassword(
 		retrieveUserResponse.User.Password,
