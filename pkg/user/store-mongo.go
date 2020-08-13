@@ -119,7 +119,7 @@ func (m MongoStore) List(request ListRequest) (*ListResponse, error) {
 	}
 
 	// perform find many
-	var records []User
+	records := make([]User, 0)
 	count, err := m.collection.FindMany(&records, request.Filter, request.Query)
 	if err != nil {
 		// failure here is an unexpected error
