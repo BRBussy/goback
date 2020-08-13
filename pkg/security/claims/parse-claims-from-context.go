@@ -15,10 +15,10 @@ func ParseFromContext(ctx context.Context) (*Claims, error) {
 	}
 
 	// try an cast claims to string
-	marshalledClaims, ok := marshalledClaimsInterface.(json.RawMessage)
+	marshalledClaims, ok := marshalledClaimsInterface.([]uint8)
 	if !ok {
 		return nil, exception.NewErrUnexpected(
-			errors.New("unable to cast context to json.RawMessage"),
+			errors.New("unable to cast context to []int8"),
 		)
 	}
 
