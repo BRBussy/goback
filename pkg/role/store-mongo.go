@@ -61,7 +61,7 @@ func (m MongoStore) Retrieve(request RetrieveRequest) (*RetrieveResponse, error)
 	// try and find a role in the collection using the given filter
 	var result Role
 	if err := m.collection.FindOne(&result, request.Filter); err != nil {
-		if errors.Is(err, mongo.NewErrNotFound()) {
+		if errors.Is(err, &mongo.ErrNotFound{}) {
 			// if the error is ErrNotFound return it
 			return nil, err
 		}

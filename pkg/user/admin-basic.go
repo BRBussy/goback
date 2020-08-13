@@ -58,7 +58,7 @@ func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse,
 						roleID,
 					),
 				},
-			); errors.Is(err, mongo.NewErrNotFound()) {
+			); errors.Is(err, &mongo.ErrNotFound{}) {
 				reasonsInvalid = append(
 					reasonsInvalid,
 					fmt.Sprintf("role with ID %s does not exist", roleID),
@@ -94,7 +94,7 @@ func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse,
 				reasonsInvalid,
 				"email already in use",
 			)
-		} else if !errors.Is(err, mongo.NewErrNotFound()) {
+		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
 			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
@@ -124,7 +124,7 @@ func (b *BasicAdmin) AddNewUser(request AddNewUserRequest) (*AddNewUserResponse,
 				reasonsInvalid,
 				"username already in use",
 			)
-		} else if !errors.Is(err, mongo.NewErrNotFound()) {
+		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
 			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
@@ -164,7 +164,7 @@ func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse,
 			),
 		},
 	)
-	if errors.Is(err, mongo.NewErrNotFound()) {
+	if errors.Is(err, &mongo.ErrNotFound{}) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
@@ -200,7 +200,7 @@ func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse,
 				reasonsInvalid,
 				"email already in use",
 			)
-		} else if !errors.Is(err, mongo.NewErrNotFound()) {
+		} else if !errors.Is(err, &mongo.ErrNotFound{}) {
 			// errors other than not "NotFound" are unexpected
 			log.Error().Err(err).Msg("error retrieving user")
 			return nil, exception.NewErrUnexpected(err)
@@ -217,7 +217,7 @@ func (b *BasicAdmin) UpdateUser(request UpdateUserRequest) (*UpdateUserResponse,
 					roleID,
 				),
 			},
-		); errors.Is(err, mongo.NewErrNotFound()) {
+		); errors.Is(err, &mongo.ErrNotFound{}) {
 			reasonsInvalid = append(
 				reasonsInvalid,
 				fmt.Sprintf("role with ID %s is does not exist", roleID),
@@ -258,7 +258,7 @@ func (b *BasicAdmin) RegisterUser(request RegisterUserRequest) (*RegisterUserRes
 			),
 		},
 	)
-	if errors.Is(err, mongo.NewErrNotFound()) {
+	if errors.Is(err, &mongo.ErrNotFound{}) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
@@ -303,7 +303,7 @@ func (b *BasicAdmin) SetUserPassword(request SetUserPasswordRequest) (*SetUserPa
 			),
 		},
 	)
-	if errors.Is(err, mongo.NewErrNotFound()) {
+	if errors.Is(err, &mongo.ErrNotFound{}) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected
@@ -349,7 +349,7 @@ func (b *BasicAdmin) CheckUserPassword(request CheckUserPasswordRequest) (*Check
 			),
 		},
 	)
-	if errors.Is(err, mongo.NewErrNotFound()) {
+	if errors.Is(err, &mongo.ErrNotFound{}) {
 		return nil, NewErrUserDoesNotExist()
 	} else if err != nil {
 		// errors other than not "NotFound" are unexpected

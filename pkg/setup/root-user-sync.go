@@ -58,7 +58,7 @@ func RootUserSync(
 			),
 		},
 	)
-	if errors.Is(err, mongo.NewErrNotFound()) {
+	if errors.Is(err, &mongo.ErrNotFound{}) {
 		// root user not found and so does not exist yet
 		// create and register it
 

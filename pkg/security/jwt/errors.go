@@ -49,17 +49,12 @@ func (e *ErrJWTInvalid) Unwrap() error {
 }
 
 type ErrJWTVerificationFailure struct {
-	err error
 }
 
-func NewErrJWTVerificationFailure(err error) *ErrJWTVerificationFailure {
-	return &ErrJWTVerificationFailure{err: err}
+func NewErrJWTVerificationFailure() *ErrJWTVerificationFailure {
+	return &ErrJWTVerificationFailure{}
 }
 
 func (e *ErrJWTVerificationFailure) Error() string {
-	return "jwt verification failure " + e.err.Error()
-}
-
-func (e *ErrJWTVerificationFailure) Unwrap() error {
-	return e.err
+	return "jwt verification failure"
 }

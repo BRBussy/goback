@@ -16,7 +16,8 @@ func NewBasicValidator(
 	rsaKeyPair *rsa.PrivateKey,
 ) *BasicValidator {
 	return &BasicValidator{
-		rsaKeyPair: rsaKeyPair,
+		requestValidator: validate.NewRequestValidator(),
+		rsaKeyPair:       rsaKeyPair,
 	}
 }
 
@@ -38,7 +39,7 @@ func (b *BasicValidator) Validate(request ValidateRequest) (*ValidateResponse, e
 	jsonPayload, err := jwtObject.Verify(&b.rsaKeyPair.PublicKey)
 	if err != nil {
 		log.Error().Err(err).Msg("jwt verification failure")
-		return nil, NewErrJWTVerificationFailure(err)
+		return nil, NewErrJWTVerificationFailure()
 	}
 
 	return &ValidateResponse{

@@ -11,6 +11,17 @@ func (e *ErrLoginFailed) Error() string {
 	return "login failed: incorrect email address or password"
 }
 
+type ErrJWTInvalid struct {
+}
+
+func NewErrJWTInvalid() *ErrJWTInvalid {
+	return &ErrJWTInvalid{}
+}
+
+func (e *ErrJWTInvalid) Error() string {
+	return "jwt invalid"
+}
+
 type ErrJWTExpired struct{}
 
 func NewErrJWTExpired() *ErrJWTExpired {

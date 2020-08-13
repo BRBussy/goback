@@ -51,7 +51,7 @@ func (b BasicAuthenticator) Login(request LoginRequest) (*LoginResponse, error) 
 		},
 	)
 	if err != nil {
-		if errors.Is(err, mongo.NewErrNotFound()) {
+		if errors.Is(err, &mongo.ErrNotFound{}) {
 			log.Warn().Msg("attempted login from non-existent user")
 		} else {
 			log.Error().Err(err).Msg("error retrieving user for login")
@@ -95,7 +95,10 @@ func (b BasicAuthenticator) ValidateJWT(request ValidateJWTRequest) (*ValidateJW
 	validateResponse, err := b.jwtValidator.Validate(
 		jwt.ValidateRequest{JWT: request.JWT},
 	)
-	if err != nil {
+	if errors.Is(err, &jwt.ErrJWTInvalid{}) ||
+		errors.Is(err, &jwt.ErrJWTVerificationFailure{}) {
+		return nil, NewErrJWTInvalid()
+	} else if err != nil {
 		log.Error().Err(err).Msg("error validating jwt")
 		return nil, exception.NewErrUnexpected(err)
 	}
