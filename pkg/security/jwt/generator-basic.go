@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"encoding/json"
 	"github.com/BRBussy/goback/pkg/exception"
-	"github.com/BRBussy/goback/pkg/security/claims"
 	"github.com/BRBussy/goback/pkg/validate"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/square/go-jose.v2"
@@ -43,11 +42,7 @@ func (b *BasicGenerator) Generate(request GenerateRequest) (*GenerateResponse, e
 	}
 
 	// marshal the given claims to generate jwt payload
-	jwtPayload, err := json.Marshal(
-		claims.SerializedClaims{
-			Claims: request.Claims,
-		},
-	)
+	jwtPayload, err := json.Marshal(request.Claims)
 	if err != nil {
 		log.Error().Err(err).Msg("error marshalling claims")
 		return nil, NewErrJSONMarshalError(err)

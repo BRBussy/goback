@@ -7,7 +7,7 @@ import (
 	"github.com/BRBussy/goback/pkg/exception"
 )
 
-func ParseFromContext(ctx context.Context) (Claims, error) {
+func ParseFromContext(ctx context.Context) (*Claims, error) {
 	// look for claims in context
 	marshalledClaimsInterface := ctx.Value("Claims")
 	if marshalledClaimsInterface == nil {
@@ -23,10 +23,10 @@ func ParseFromContext(ctx context.Context) (Claims, error) {
 	}
 
 	// parse the claims from json
-	var serializedClaims SerializedClaims
-	if err := json.Unmarshal(marshalledClaims, &serializedClaims); err != nil {
+	var c Claims
+	if err := json.Unmarshal(marshalledClaims, &c); err != nil {
 		return nil, NewErrJSONUnmarshallError(err)
 	}
 
-	return serializedClaims.Claims, nil
+	return &c, nil
 }

@@ -98,7 +98,7 @@ func main() {
 	//
 	authenticationMiddleware := authentication.NewMiddleware(
 		basicAuthenticator,
-		jwtBasicValidator,
+		userMongoStore,
 	)
 	authorisationMiddleware := authorisation.NewMiddleware(basicAuthoriser)
 
